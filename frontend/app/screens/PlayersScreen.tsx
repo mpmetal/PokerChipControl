@@ -257,6 +257,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
   },
+  backButton: {
+    padding: 8,
+    marginLeft: -8,
+    borderRadius: 8,
+  },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
