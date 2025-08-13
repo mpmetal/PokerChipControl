@@ -308,16 +308,14 @@ export default function GameScreen() {
               </View>
             )}
 
-            {selectedTransactionType !== 'cashed_out' && (
-              <TextInput
-                style={styles.input}
-                placeholder="Amount"
-                value={amount}
-                onChangeText={setAmount}
-                keyboardType="numeric"
-                autoFocus
-              />
-            )}
+            <TextInput
+              style={styles.input}
+              placeholder="Amount"
+              value={amount}
+              onChangeText={setAmount}
+              keyboardType="numeric"
+              autoFocus
+            />
 
             <TextInput
               style={styles.input}
