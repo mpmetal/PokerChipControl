@@ -349,6 +349,68 @@ export default function GameScreen() {
           </View>
         </KeyboardAvoidingView>
       </Modal>
+
+      {/* Add Player Modal */}
+      <Modal visible={showAddPlayerModal} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add Player to Game</Text>
+            
+            <Text style={styles.instruction}>
+              Select a player to add to the current game. They will join with their current balance.
+            </Text>
+
+            <ScrollView style={styles.availablePlayersList}>
+              {players
+                .filter(player => !currentGame?.players.some(p => p.player_id === player.id))
+                .map((player) => (
+                <TouchableOpacity
+                  key={player.id}
+                  style={styles.availablePlayerCard}
+                  onPress={async () => {
+                    try {
+                      if (currentGame) {
+                        await addPlayerToGame(currentGame.id, player.id);
+                        setShowAddPlayerModal(false);
+                        // Refresh the current game data
+                        const updatedGames = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/games`).then(r => r.json());
+                        const updatedCurrentGame = updatedGames.find((g: any) => g.id === currentGame.id);
+                        if (updatedCurrentGame) {
+                          // This will be handled by the context automatically
+                        }
+                      }
+                    } catch (error) {
+                      Alert.alert('Error', 'Failed to add player to game. Please try again.');
+                    }
+                  }}
+                >
+                  <View style={styles.availablePlayerInfo}>
+                    <Text style={styles.availablePlayerName}>{player.name}</Text>
+                    <Text style={styles.availablePlayerBalance}>
+                      Current Balance: {formatBalance(player.current_balance)}
+                    </Text>
+                  </View>
+                  <Ionicons name="add-circle" size={24} color="#4CAF50" />
+                </TouchableOpacity>
+              ))}
+              
+              {players.filter(player => !currentGame?.players.some(p => p.player_id === player.id)).length === 0 && (
+                <View style={styles.noPlayersAvailable}>
+                  <Ionicons name="people-outline" size={48} color="#ccc" />
+                  <Text style={styles.noPlayersText}>All players are already in the game</Text>
+                </View>
+              )}
+            </ScrollView>
+            
+            <TouchableOpacity 
+              style={styles.cancelButton}
+              onPress={() => setShowAddPlayerModal(false)}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
