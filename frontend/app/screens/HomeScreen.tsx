@@ -205,8 +205,27 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#2E7D32',
-    padding: 24,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 24,
+  },
+  headerContent: {
+    flex: 1,
+  },
+  languageToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 4,
+  },
+  languageText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
   headerTitle: {
     fontSize: 28,
