@@ -152,7 +152,17 @@ export default function GameScreen() {
 
   const formatBalance = (balance: number) => {
     const absBalance = Math.abs(balance);
-    return balance >= 0 ? `+$${absBalance.toFixed(2)}` : `-$${absBalance.toFixed(2)}`;
+    const formattedAmount = formatMoney(absBalance);
+    return balance >= 0 ? `+$${formattedAmount}` : `-$${formattedAmount}`;
+  };
+
+  const formatMoney = (amount: number) => {
+    // Remove .00 if the amount is a whole number, add commas for thousands
+    if (amount % 1 === 0) {
+      return amount.toLocaleString('en-US');
+    } else {
+      return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
   };
 
   const getTransactionTypeInfo = (type: string) => {
