@@ -191,17 +191,22 @@ async def create_transaction(game_id: str, transaction_data: TransactionCreate):
         **transaction_data.dict(exclude={"player_id"})
     )
     
-    # Calculate balance change based on transaction type
+    # Calculate balance change and total_played change based on transaction type
     balance_change = 0.0
+    total_played_change = 0.0
+    
     if transaction_data.transaction_type == TransactionType.CASH:
-        # Cash purchase - no balance change, just records chips bought
+        # Cash purchase - no balance change, but adds to total played
         balance_change = 0.0
+        total_played_change = transaction_data.amount
     elif transaction_data.transaction_type == TransactionType.BANK_TRANSFER:
-        # Bank transfer purchase - no balance change, just records chips bought 
+        # Bank transfer purchase - no balance change, but adds to total played
         balance_change = 0.0
+        total_played_change = transaction_data.amount
     elif transaction_data.transaction_type == TransactionType.CREDIT:
-        # Credit - player receives chips on credit, creates debt (negative balance)
+        # Credit - player receives chips on credit, creates debt (negative balance) and adds to total played
         balance_change = -transaction_data.amount
+        total_played_change = transaction_data.amount
     elif transaction_data.transaction_type == TransactionType.CASHED_OUT:
         # Cashed out - positive balance converted to cash, balance becomes 0
         current_balance = player["current_balance"]
@@ -209,15 +214,22 @@ async def create_transaction(game_id: str, transaction_data: TransactionCreate):
             raise HTTPException(status_code=400, detail="Player has no positive balance to cash out")
         balance_change = -current_balance  # Reset to 0
         transaction.amount = current_balance  # Record actual amount cashed out
+        total_played_change = 0.0
     elif transaction_data.transaction_type == TransactionType.PAID_WITH_CHIPS:
         # Paid with chips - reduces debt or creates positive balance
         balance_change = transaction_data.amount
+        total_played_change = 0.0
     
-    # Update player balance
+    # Update player balance and total played
     new_balance = player["current_balance"] + balance_change
+    new_total_played = player["total_played"] + total_played_change
+    
     await db.players.update_one(
         {"id": transaction_data.player_id}, 
-        {"$set": {"current_balance": new_balance}}
+        {"$set": {
+            "current_balance": new_balance,
+            "total_played": new_total_played
+        }}
     )
     
     # Save transaction
