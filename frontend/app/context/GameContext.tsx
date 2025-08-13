@@ -93,21 +93,70 @@ export default function GameProvider({ children }: GameProviderProps) {
     }
   };
 
-  const createPlayer = async (name: string) => {
+  const createPlayer = async (name: string, photo?: string) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/players`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, photo }),
       });
       
       if (response.ok) {
         await fetchPlayers(); // Refresh players list
+      } else {
+        const errorText = await response.text();
+        throw new Error(`Failed to create player: ${errorText}`);
       }
     } catch (error) {
       console.error('Error creating player:', error);
+      throw error;
+    }
+  };
+
+  const updatePlayer = async (playerId: string, name?: string, balance?: number, photo?: string) => {
+    try {
+      const updateData: any = {};
+      if (name !== undefined) updateData.name = name;
+      if (balance !== undefined) updateData.current_balance = balance;
+      if (photo !== undefined) updateData.photo = photo;
+
+      const response = await fetch(`${API_BASE_URL}/api/players/${playerId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      });
+      
+      if (response.ok) {
+        await fetchPlayers(); // Refresh players list
+      } else {
+        const errorText = await response.text();
+        throw new Error(`Failed to update player: ${errorText}`);
+      }
+    } catch (error) {
+      console.error('Error updating player:', error);
+      throw error;
+    }
+  };
+
+  const deletePlayer = async (playerId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/players/${playerId}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        await fetchPlayers(); // Refresh players list
+      } else {
+        const errorText = await response.text();
+        throw new Error(`Failed to delete player: ${errorText}`);
+      }
+    } catch (error) {
+      console.error('Error deleting player:', error);
+      throw error;
     }
   };
 
