@@ -270,6 +270,19 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     gap: 8,
   },
+  helpContainer: {
+    backgroundColor: '#E8F5E9',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  helpText: {
+    fontSize: 14,
+    color: '#2E7D32',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
   buttonText: {
     color: '#fff',
     fontSize: 16,
