@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
   creditAmount: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#4CAF50',
+    color: '#1976D2',
   },
   debtAmount: {
     fontSize: 24,
