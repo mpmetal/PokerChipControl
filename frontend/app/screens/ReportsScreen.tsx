@@ -137,14 +137,14 @@ export default function ReportsScreen() {
     const csvRows = playerReports.map(report => [
       report.player_name,
       report.games_played,
-      report.total_chips_bought.toFixed(2),
-      report.total_cash_spent.toFixed(2),
-      report.total_bank_transfers.toFixed(2),
-      report.total_credit_taken.toFixed(2),
-      report.total_paid_with_chips.toFixed(2),
-      report.total_cashed_out.toFixed(2),
-      report.current_balance.toFixed(2),
-      report.net_profit_loss.toFixed(2)
+      formatMoney(report.total_chips_bought),
+      formatMoney(report.total_cash_spent),
+      formatMoney(report.total_bank_transfers),
+      formatMoney(report.total_credit_taken),
+      formatMoney(report.total_paid_with_chips),
+      formatMoney(report.total_cashed_out),
+      formatMoney(Math.abs(report.current_balance)),
+      formatMoney(Math.abs(report.net_profit_loss))
     ].join(',')).join('\n');
     
     const csvContent = `${csvHeaders}\n${csvRows}`;
