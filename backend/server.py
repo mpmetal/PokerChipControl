@@ -29,6 +29,74 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# PostgreSQL connection for subscriptions
+DATABASE_URL = os.getenv("DATABASE_URL")
+pg_engine = create_engine(DATABASE_URL) if DATABASE_URL else None
+PgSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=pg_engine) if pg_engine else None
+PgBase = declarative_base()
+
+# RevenueCat configuration
+REVENUECAT_API_KEY = os.getenv("REVENUECAT_API_KEY")
+REVENUECAT_WEBHOOK_SECRET = os.getenv("REVENUECAT_WEBHOOK_SECRET", "")
+
+# Subscription models
+class SubscriptionUser(PgBase):
+    __tablename__ = "subscription_users"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    poker_player_id = Column(String, index=True)
+    email = Column(String, unique=True, index=True)
+    revenuecat_user_id = Column(String, unique=True, index=True)
+    is_premium = Column(Boolean, default=False)
+    subscription_platform = Column(String)
+    subscription_expires_at = Column(DateTime)
+    trial_started_at = Column(DateTime)
+    has_used_trial = Column(Boolean, default=False)
+    trial_expired = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
+class WebhookEvent(PgBase):
+    __tablename__ = "webhook_events"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    event_type = Column(String, nullable=False)
+    revenuecat_user_id = Column(String, index=True)
+    platform = Column(String)
+    product_id = Column(String)
+    event_data = Column(SQLJSON)
+    processed = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=func.now())
+
+class SubscriptionTransaction(PgBase):
+    __tablename__ = "subscription_transactions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True)
+    revenuecat_user_id = Column(String, index=True)
+    transaction_id = Column(String, unique=True)
+    product_id = Column(String)
+    platform = Column(String)
+    purchase_date = Column(DateTime)
+    expiration_date = Column(DateTime)
+    is_trial = Column(Boolean, default=False)
+    is_active = Column(Boolean, default=True)
+    amount = Column(Float)
+    created_at = Column(DateTime, default=func.now())
+
+# Create subscription tables
+if pg_engine:
+    PgBase.metadata.create_all(bind=pg_engine)
+
+def get_subscription_db():
+    if not PgSessionLocal:
+        raise HTTPException(status_code=500, detail="Subscription database not configured")
+    db = PgSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 # Create the main app without a prefix
 app = FastAPI()
 
