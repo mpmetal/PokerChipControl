@@ -260,6 +260,8 @@ agent_communication:
       message: "Backend APIs are fully implemented and tested. All poker chip management logic is working correctly with proper balance calculations. Frontend mobile app is implemented with React Native and ready for testing. The app includes comprehensive navigation, player management, game sessions, transaction processing, and history tracking."
     - agent: "testing"
       message: "Backend comprehensively tested - all endpoints working correctly. Fixed minor type annotation issue in Game model. Ready for frontend testing."
+    - agent: "main"
+      message: "User reported multiple issues: 1) Money format needs improvement (remove .00, add commas for thousands), 2) Chips not being added to table total correctly, 3) Players dragging chips from previous games, 4) Total Table shows $0.00 despite chips being added, 5) Cashed out chips not being subtracted from table total. Working on fixes."
 
 user_problem_statement: "Test the poker chip management backend API with comprehensive testing of player management, game management, transaction management, game closing, and dashboard endpoints"
 
