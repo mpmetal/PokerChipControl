@@ -580,6 +580,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
+    gap: 12,
+  },
+  photoContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    overflow: 'hidden',
+  },
+  playerPhoto: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  defaultPhoto: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#E3F2FD',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#1976D2',
   },
   playerActions: {
     flexDirection: 'row',
