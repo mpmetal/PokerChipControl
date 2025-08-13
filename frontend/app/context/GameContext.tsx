@@ -323,6 +323,8 @@ export default function GameProvider({ children }: GameProviderProps) {
     isLoading,
     fetchPlayers,
     createPlayer,
+    updatePlayer,
+    deletePlayer,
     fetchGames,
     createGame,
     setCurrentGame,
