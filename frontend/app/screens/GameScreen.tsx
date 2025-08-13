@@ -184,10 +184,21 @@ export default function GameScreen() {
             {new Date(currentGame.date).toLocaleDateString()}
           </Text>
         </View>
-        <TouchableOpacity style={styles.closeGameButton} onPress={handleCloseGame}>
-          <Ionicons name="stop-circle" size={24} color="#fff" />
-          <Text style={styles.closeGameText}>Close Game</Text>
-        </TouchableOpacity>
+        
+        <View style={styles.headerActions}>
+          <TouchableOpacity 
+            style={styles.addPlayerButton} 
+            onPress={() => setShowAddPlayerModal(true)}
+          >
+            <Ionicons name="person-add" size={20} color="#fff" />
+            <Text style={styles.addPlayerText}>Add Player</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.closeGameButton} onPress={handleCloseGame}>
+            <Ionicons name="stop-circle" size={24} color="#fff" />
+            <Text style={styles.closeGameText}>Close Game</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Players Table */}
