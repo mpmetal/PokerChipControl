@@ -123,6 +123,179 @@ async def update_player(player_id: str, player_update: PlayerUpdate):
     updated_player = await db.players.find_one({"id": player_id})
     return Player(**updated_player)
 
+# Game Routes
+@api_router.post("/games", response_model=Game)
+async def create_game(game_data: GameCreate):
+    # Get players and their current balances
+    players_with_balances = []
+    for player_id in game_data.player_ids:
+        player = await db.players.find_one({"id": player_id})
+        if not player:
+            raise HTTPException(status_code=404, detail=f"Player {player_id} not found")
+        players_with_balances.append({
+            "player_id": player_id,
+            "player_name": player["name"],
+            "starting_balance": player["current_balance"]
+        })
+    
+    game = Game(name=game_data.name, players=players_with_balances)
+    await db.games.insert_one(game.dict())
+    return game
+
+@api_router.get("/games", response_model=List[Game])
+async def get_games():
+    games = await db.games.find().sort("created_date", -1).to_list(1000)
+    return [Game(**game) for game in games]
+
+@api_router.get("/games/{game_id}", response_model=Game)
+async def get_game(game_id: str):
+    game = await db.games.find_one({"id": game_id})
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    return Game(**game)
+
+@api_router.put("/games/{game_id}", response_model=Game)
+async def update_game(game_id: str, game_update: GameUpdate):
+    update_data = {k: v for k, v in game_update.dict().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No data provided for update")
+    
+    result = await db.games.update_one({"id": game_id}, {"$set": update_data})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Game not found")
+    
+    updated_game = await db.games.find_one({"id": game_id})
+    return Game(**updated_game)
+
+
+# Transaction Routes
+@api_router.post("/games/{game_id}/transactions", response_model=Transaction)
+async def create_transaction(game_id: str, transaction_data: TransactionCreate):
+    # Verify game exists and is active
+    game = await db.games.find_one({"id": game_id})
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    if game.get("status") != GameStatus.ACTIVE:
+        raise HTTPException(status_code=400, detail="Cannot add transactions to closed game")
+    
+    # Get player info
+    player = await db.players.find_one({"id": transaction_data.player_id})
+    if not player:
+        raise HTTPException(status_code=404, detail="Player not found")
+    
+    # Create transaction
+    transaction = Transaction(
+        game_id=game_id,
+        player_id=transaction_data.player_id,
+        player_name=player["name"],
+        **transaction_data.dict(exclude={"player_id"})
+    )
+    
+    # Calculate balance change based on transaction type
+    balance_change = 0.0
+    if transaction_data.transaction_type == TransactionType.CASH:
+        # Cash purchase - no balance change, just records chips bought
+        balance_change = 0.0
+    elif transaction_data.transaction_type == TransactionType.BANK_TRANSFER:
+        # Bank transfer purchase - no balance change, just records chips bought 
+        balance_change = 0.0
+    elif transaction_data.transaction_type == TransactionType.CREDIT:
+        # Credit - player receives chips on credit, creates debt (negative balance)
+        balance_change = -transaction_data.amount
+    elif transaction_data.transaction_type == TransactionType.CASHED_OUT:
+        # Cashed out - positive balance converted to cash, balance becomes 0
+        current_balance = player["current_balance"]
+        if current_balance <= 0:
+            raise HTTPException(status_code=400, detail="Player has no positive balance to cash out")
+        balance_change = -current_balance  # Reset to 0
+        transaction.amount = current_balance  # Record actual amount cashed out
+    elif transaction_data.transaction_type == TransactionType.PAID_WITH_CHIPS:
+        # Paid with chips - reduces debt or creates positive balance
+        balance_change = transaction_data.amount
+    
+    # Update player balance
+    new_balance = player["current_balance"] + balance_change
+    await db.players.update_one(
+        {"id": transaction_data.player_id}, 
+        {"$set": {"current_balance": new_balance}}
+    )
+    
+    # Save transaction
+    await db.transactions.insert_one(transaction.dict())
+    
+    # Add transaction to game
+    await db.games.update_one(
+        {"id": game_id}, 
+        {"$push": {"transactions": transaction.id}}
+    )
+    
+    return transaction
+
+@api_router.get("/games/{game_id}/transactions", response_model=List[Transaction])
+async def get_game_transactions(game_id: str):
+    transactions = await db.transactions.find({"game_id": game_id}).sort("timestamp", 1).to_list(1000)
+    return [Transaction(**transaction) for transaction in transactions]
+
+@api_router.post("/games/{game_id}/close")
+async def close_game(game_id: str):
+    # Get game
+    game = await db.games.find_one({"id": game_id})
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    if game.get("status") == GameStatus.CLOSED:
+        raise HTTPException(status_code=400, detail="Game is already closed")
+    
+    # Get final balances for all players in the game
+    final_balances = {}
+    for player_info in game["players"]:
+        player_id = player_info["player_id"]
+        player = await db.players.find_one({"id": player_id})
+        if player:
+            final_balances[player_id] = player["current_balance"]
+    
+    # Update game status and final balances
+    await db.games.update_one(
+        {"id": game_id}, 
+        {
+            "$set": {
+                "status": GameStatus.CLOSED,
+                "final_balances": final_balances
+            }
+        }
+    )
+    
+    return {"message": "Game closed successfully", "final_balances": final_balances}
+
+
+# Dashboard/Stats Routes
+@api_router.get("/dashboard")
+async def get_dashboard():
+    # Get active games count
+    active_games = await db.games.count_documents({"status": GameStatus.ACTIVE})
+    
+    # Get total players
+    total_players = await db.players.count_documents({})
+    
+    # Get players with positive balances (money owed to players)
+    players_with_credit = await db.players.find({"current_balance": {"$gt": 0}}).to_list(1000)
+    total_credit_owed = sum(player["current_balance"] for player in players_with_credit)
+    
+    # Get players with negative balances (money owed by players)  
+    players_with_debt = await db.players.find({"current_balance": {"$lt": 0}}).to_list(1000)
+    total_debt_owed = sum(abs(player["current_balance"]) for player in players_with_debt)
+    
+    # Get recent transactions
+    recent_transactions = await db.transactions.find().sort("timestamp", -1).limit(10).to_list(10)
+    
+    return {
+        "active_games": active_games,
+        "total_players": total_players,
+        "total_credit_owed": total_credit_owed,
+        "total_debt_owed": total_debt_owed,
+        "recent_transactions": [Transaction(**t) for t in recent_transactions]
+    }
+
+
 # Include the router in the main app
 app.include_router(api_router)
 
