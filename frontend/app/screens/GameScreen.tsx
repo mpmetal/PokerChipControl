@@ -429,6 +429,12 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 4,
   },
+  totalPlayed: {
+    fontSize: 14,
+    color: '#4CAF50',
+    marginTop: 2,
+    fontWeight: '600',
+  },
   currentBalanceContainer: {
     alignItems: 'center',
     marginBottom: 16,
