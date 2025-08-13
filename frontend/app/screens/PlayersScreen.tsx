@@ -24,8 +24,10 @@ export default function PlayersScreen() {
   const [showEditPlayer, setShowEditPlayer] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<any>(null);
   const [newPlayerName, setNewPlayerName] = useState('');
+  const [newPlayerPhoto, setNewPlayerPhoto] = useState<string | null>(null);
   const [editPlayerName, setEditPlayerName] = useState('');
   const [editPlayerBalance, setEditPlayerBalance] = useState('');
+  const [editPlayerPhoto, setEditPlayerPhoto] = useState<string | null>(null);
   const [selectedPlayers, setSelectedPlayers] = useState<Set<string>>(new Set());
   const [showNewGame, setShowNewGame] = useState(false);
   const [gameName, setGameName] = useState('');
