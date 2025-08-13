@@ -475,6 +475,298 @@ async def get_dashboard():
         "recent_transactions": [Transaction(**t) for t in recent_transactions]
     }
 
+# Subscription utility functions
+def verify_webhook_signature(payload: bytes, signature: str) -> bool:
+    """Verify RevenueCat webhook signature for security."""
+    if not REVENUECAT_WEBHOOK_SECRET:
+        logger.warning("Webhook secret not configured")
+        return False
+    
+    expected_signature = hmac.new(
+        REVENUECAT_WEBHOOK_SECRET.encode(),
+        payload,
+        hashlib.sha256
+    ).hexdigest()
+    
+    return hmac.compare_digest(f"sha256={expected_signature}", signature)
+
+def create_revenuecat_user_id(player_id: str) -> str:
+    """Create a RevenueCat user ID from player ID."""
+    return f"player_{player_id}"
+
+def check_trial_eligibility(user: SubscriptionUser) -> bool:
+    """Check if user is eligible for free trial."""
+    return not user.has_used_trial and not user.trial_expired
+
+def calculate_days_remaining(expires_at: datetime) -> int:
+    """Calculate days remaining in subscription."""
+    if not expires_at:
+        return 0
+    now = datetime.now(timezone.utc)
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    delta = expires_at - now
+    return max(0, delta.days)
+
+# Subscription Routes
+@api_router.post("/subscription/create-user", response_model=SubscriptionUserResponse)
+async def create_subscription_user(
+    user_data: SubscriptionUserCreate,
+    pg_db: Session = Depends(get_subscription_db)
+):
+    """Create a new subscription user linked to a poker player."""
+    # Check if user already exists
+    existing_user = pg_db.query(SubscriptionUser).filter(
+        SubscriptionUser.poker_player_id == user_data.poker_player_id
+    ).first()
+    
+    if existing_user:
+        return existing_user
+    
+    # Create RevenueCat user ID
+    revenuecat_user_id = create_revenuecat_user_id(user_data.poker_player_id)
+    
+    # Create new subscription user
+    new_user = SubscriptionUser(
+        poker_player_id=user_data.poker_player_id,
+        email=user_data.email,
+        revenuecat_user_id=revenuecat_user_id
+    )
+    
+    pg_db.add(new_user)
+    pg_db.commit()
+    pg_db.refresh(new_user)
+    
+    return new_user
+
+@api_router.get("/subscription/status/{player_id}", response_model=SubscriptionStatus)
+async def get_subscription_status(
+    player_id: str,
+    pg_db: Session = Depends(get_subscription_db)
+):
+    """Get subscription status for a player."""
+    user = pg_db.query(SubscriptionUser).filter(
+        SubscriptionUser.poker_player_id == player_id
+    ).first()
+    
+    if not user:
+        # User doesn't exist, eligible for trial
+        return SubscriptionStatus(
+            is_premium=False,
+            days_remaining=0,
+            is_trial=False,
+            can_start_trial=True
+        )
+    
+    # Check if subscription is active
+    is_premium = user.is_premium
+    if user.subscription_expires_at:
+        now = datetime.now(timezone.utc)
+        if user.subscription_expires_at.tzinfo is None:
+            expires_at = user.subscription_expires_at.replace(tzinfo=timezone.utc)
+        else:
+            expires_at = user.subscription_expires_at
+        
+        if expires_at <= now:
+            is_premium = False
+            # Update user status
+            user.is_premium = False
+            pg_db.commit()
+    
+    # Calculate days remaining
+    days_remaining = 0
+    if user.subscription_expires_at and is_premium:
+        days_remaining = calculate_days_remaining(user.subscription_expires_at)
+    
+    # Check if currently in trial
+    is_trial = False
+    if user.trial_started_at and is_premium:
+        trial_end = user.trial_started_at + timedelta(days=7)
+        now = datetime.now(timezone.utc)
+        if user.trial_started_at.tzinfo is None:
+            trial_end = trial_end.replace(tzinfo=timezone.utc)
+        is_trial = now <= trial_end
+    
+    return SubscriptionStatus(
+        is_premium=is_premium,
+        days_remaining=days_remaining,
+        is_trial=is_trial,
+        can_start_trial=check_trial_eligibility(user)
+    )
+
+@api_router.post("/subscription/start-trial/{player_id}")
+async def start_free_trial(
+    player_id: str,
+    pg_db: Session = Depends(get_subscription_db)
+):
+    """Start free trial for a player (7 days)."""
+    user = pg_db.query(SubscriptionUser).filter(
+        SubscriptionUser.poker_player_id == player_id
+    ).first()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if not check_trial_eligibility(user):
+        raise HTTPException(status_code=400, detail="User not eligible for trial")
+    
+    # Start trial
+    now = datetime.now(timezone.utc)
+    trial_end = now + timedelta(days=7)
+    
+    user.is_premium = True
+    user.trial_started_at = now
+    user.subscription_expires_at = trial_end
+    user.has_used_trial = True
+    user.subscription_platform = "trial"
+    
+    pg_db.commit()
+    
+    return {
+        "message": "Free trial started successfully",
+        "trial_ends_at": trial_end.isoformat(),
+        "days_remaining": 7
+    }
+
+@api_router.post("/webhooks/revenuecat")
+async def handle_revenuecat_webhook(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    pg_db: Session = Depends(get_subscription_db)
+):
+    """Handle RevenueCat webhook events."""
+    try:
+        # Get raw payload for signature verification
+        payload = await request.body()
+        signature = request.headers.get("authorization", "")
+        
+        # Verify webhook signature
+        if REVENUECAT_WEBHOOK_SECRET and not verify_webhook_signature(payload, signature):
+            logger.warning("Invalid webhook signature")
+            raise HTTPException(status_code=401, detail="Invalid signature")
+        
+        # Parse webhook data
+        webhook_data = json.loads(payload.decode())
+        event_type = webhook_data.get("type")
+        app_user_id = webhook_data.get("app_user_id")
+        
+        # Log webhook event
+        webhook_event = WebhookEvent(
+            event_type=event_type,
+            revenuecat_user_id=app_user_id,
+            platform=webhook_data.get("store", "unknown"),
+            product_id=webhook_data.get("product_id"),
+            event_data=webhook_data
+        )
+        pg_db.add(webhook_event)
+        pg_db.commit()
+        
+        # Process webhook event
+        background_tasks.add_task(process_webhook_event, webhook_data, pg_db)
+        
+        return {"status": "received"}
+        
+    except Exception as e:
+        logger.error(f"Webhook processing error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Webhook processing failed")
+
+def process_webhook_event(webhook_data: dict, pg_db: Session):
+    """Process RevenueCat webhook events and update user subscriptions."""
+    try:
+        event_type = webhook_data.get("type")
+        app_user_id = webhook_data.get("app_user_id")
+        
+        if not app_user_id:
+            logger.warning("No app_user_id in webhook data")
+            return
+        
+        # Get user
+        user = pg_db.query(SubscriptionUser).filter(
+            SubscriptionUser.revenuecat_user_id == app_user_id
+        ).first()
+        
+        if not user:
+            logger.warning(f"User not found for RevenueCat ID: {app_user_id}")
+            return
+        
+        # Process based on event type
+        if event_type == "INITIAL_PURCHASE":
+            handle_initial_purchase(webhook_data, user, pg_db)
+        elif event_type == "RENEWAL":
+            handle_renewal(webhook_data, user, pg_db)
+        elif event_type == "CANCELLATION":
+            handle_cancellation(webhook_data, user, pg_db)
+        elif event_type == "EXPIRATION":
+            handle_expiration(webhook_data, user, pg_db)
+        
+        pg_db.commit()
+        logger.info(f"Processed webhook event {event_type} for user {app_user_id}")
+        
+    except Exception as e:
+        logger.error(f"Error processing webhook event: {str(e)}")
+        pg_db.rollback()
+
+def handle_initial_purchase(webhook_data: dict, user: SubscriptionUser, pg_db: Session):
+    """Handle initial subscription purchase events."""
+    entitlements = webhook_data.get("entitlements", {})
+    
+    # Check if premium entitlement is active
+    premium_entitlement = entitlements.get("premium")
+    if premium_entitlement and premium_entitlement.get("expires_date"):
+        user.is_premium = True
+        expires_date = premium_entitlement["expires_date"]
+        user.subscription_expires_at = datetime.fromisoformat(
+            expires_date.replace("Z", "+00:00")
+        )
+        user.subscription_platform = webhook_data.get("store", "unknown")
+        
+        # Create transaction record
+        transaction = SubscriptionTransaction(
+            user_id=user.id,
+            revenuecat_user_id=user.revenuecat_user_id,
+            transaction_id=webhook_data.get("transaction_id"),
+            product_id=webhook_data.get("product_id"),
+            platform=webhook_data.get("store"),
+            purchase_date=datetime.now(timezone.utc),
+            expiration_date=user.subscription_expires_at,
+            is_trial=premium_entitlement.get("is_sandbox", False),
+            is_active=True,
+            amount=2.0  # $2 monthly subscription
+        )
+        pg_db.add(transaction)
+
+def handle_renewal(webhook_data: dict, user: SubscriptionUser, pg_db: Session):
+    """Handle subscription renewal events."""
+    entitlements = webhook_data.get("entitlements", {})
+    premium_entitlement = entitlements.get("premium")
+    
+    if premium_entitlement:
+        expires_date = premium_entitlement["expires_date"]
+        user.subscription_expires_at = datetime.fromisoformat(
+            expires_date.replace("Z", "+00:00")
+        )
+        user.is_premium = True
+
+def handle_cancellation(webhook_data: dict, user: SubscriptionUser, pg_db: Session):
+    """Handle subscription cancellation events."""
+    # User keeps access until expiration date
+    logger.info(f"Subscription cancelled for user {user.revenuecat_user_id}, access until {user.subscription_expires_at}")
+
+def handle_expiration(webhook_data: dict, user: SubscriptionUser, pg_db: Session):
+    """Handle subscription expiration events."""
+    user.is_premium = False
+    user.subscription_expires_at = None
+    user.subscription_platform = None
+    
+    # Mark transactions as inactive
+    transactions = pg_db.query(SubscriptionTransaction).filter(
+        SubscriptionTransaction.revenuecat_user_id == user.revenuecat_user_id,
+        SubscriptionTransaction.is_active == True
+    ).all()
+    
+    for transaction in transactions:
+        transaction.is_active = False
+
 
 # Include the router in the main app
 app.include_router(api_router)
