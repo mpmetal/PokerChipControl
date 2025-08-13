@@ -203,7 +203,7 @@ export default function HomeScreen() {
                 <Text style={styles.transactionPlayer}>{transaction.player_name}</Text>
                 <Text style={styles.transactionType}>{transaction.transaction_type.replace('_', ' ')}</Text>
               </View>
-              <Text style={styles.transactionAmount}>${transaction.amount}</Text>
+              <Text style={styles.transactionAmount}>${formatMoney(transaction.amount)}</Text>
             </View>
           ))}
         </View>
