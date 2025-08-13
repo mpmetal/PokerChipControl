@@ -57,6 +57,29 @@ export default function GameScreen() {
         return;
       }
       transactionAmount = selectedPlayer.current_balance;
+    } else if (selectedTransactionType === 'paid_with_chips') {
+      // For paid with chips, validate amount against what they can actually pay
+      if (!amount || parseFloat(amount) <= 0) {
+        Alert.alert('Error', 'Please enter a valid amount.');
+        return;
+      }
+      transactionAmount = parseFloat(amount);
+      
+      // Show confirmation for large payments
+      const newBalance = selectedPlayer.current_balance + transactionAmount;
+      if (transactionAmount > 1000) {
+        const confirmed = await new Promise((resolve) => {
+          Alert.alert(
+            'Confirm Large Payment',
+            `Player will pay $${transactionAmount.toFixed(2)} with chips.\nCurrent balance: ${formatBalance(selectedPlayer.current_balance)}\nNew balance: ${formatBalance(newBalance)}`,
+            [
+              { text: 'Cancel', onPress: () => resolve(false) },
+              { text: 'Confirm', onPress: () => resolve(true) }
+            ]
+          );
+        });
+        if (!confirmed) return;
+      }
     } else {
       // For other transactions, require amount
       if (!amount || parseFloat(amount) <= 0) {
@@ -66,19 +89,24 @@ export default function GameScreen() {
       transactionAmount = parseFloat(amount);
     }
 
-    await createTransaction(
-      currentGame.id, 
-      selectedPlayer.id, 
-      selectedTransactionType, 
-      transactionAmount,
-      description || undefined
-    );
-    
-    setShowTransactionModal(false);
-    setAmount('');
-    setDescription('');
-    setSelectedPlayer(null);
-    setSelectedTransactionType('');
+    try {
+      await createTransaction(
+        currentGame.id, 
+        selectedPlayer.id, 
+        selectedTransactionType, 
+        transactionAmount,
+        description || undefined
+      );
+      
+      setShowTransactionModal(false);
+      setAmount('');
+      setDescription('');
+      setSelectedPlayer(null);
+      setSelectedTransactionType('');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to create transaction. Please try again.');
+      console.error('Transaction error:', error);
+    }
   };
 
   const handleCloseGame = () => {
