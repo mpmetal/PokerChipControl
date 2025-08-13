@@ -110,13 +110,24 @@ if pg_engine:
     PgBase.metadata.create_all(bind=pg_engine)
 
 def get_subscription_db():
+    """Get subscription database session or None if not available."""
     if not PgSessionLocal:
-        raise HTTPException(status_code=500, detail="Subscription database not configured")
+        return None
     db = PgSessionLocal()
     try:
         yield db
     finally:
         db.close()
+
+# Utility functions for in-memory storage
+def get_user_from_memory(player_id: str):
+    """Get user from memory storage."""
+    return subscription_users_memory.get(player_id)
+
+def save_user_to_memory(player_id: str, user_data: dict):
+    """Save user to memory storage."""
+    subscription_users_memory[player_id] = user_data
+    return user_data
 
 # Create the main app without a prefix
 app = FastAPI()
