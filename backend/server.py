@@ -79,7 +79,7 @@ class Game(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     date: datetime = Field(default_factory=datetime.utcnow)
-    players: List[Dict] = []  # [{"player_id": "123", "player_name": "Alice", "starting_balance": -500}]
+    players: List[Dict[str, any]] = []  # [{"player_id": "123", "starting_balance": -500, "chips_in_game": 0}]
     status: GameStatus = GameStatus.ACTIVE
     transactions: List[str] = []  # Transaction IDs
     final_balances: Dict[str, float] = {}  # {"player_id": final_balance}
