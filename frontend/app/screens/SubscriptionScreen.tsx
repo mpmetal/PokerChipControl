@@ -25,8 +25,6 @@ const SubscriptionScreen: React.FC = () => {
     daysRemaining,
     canStartTrial,
     startFreeTrial,
-    purchaseSubscription,
-    restorePurchases,
   } = useSubscription();
 
   const handleStartTrial = async () => {
