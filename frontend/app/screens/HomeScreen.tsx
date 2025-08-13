@@ -85,8 +85,19 @@ export default function HomeScreen() {
     >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Poker Club Manager</Text>
-        <Text style={styles.headerSubtitle}>Manage chips, players, and sessions</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>{t.poker_club_manager}</Text>
+          <Text style={styles.headerSubtitle}>{t.manage_chips_players_sessions}</Text>
+        </View>
+        
+        {/* Language Toggle */}
+        <TouchableOpacity 
+          style={styles.languageToggle}
+          onPress={() => setLanguage(language === 'en' ? 'es' : 'en')}
+        >
+          <Ionicons name="language" size={20} color="#fff" />
+          <Text style={styles.languageText}>{language.toUpperCase()}</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Quick Stats */}
