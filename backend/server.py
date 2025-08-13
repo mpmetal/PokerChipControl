@@ -297,7 +297,8 @@ async def add_player_to_game(game_id: str, request: AddPlayerRequest):
     new_player_info = {
         "player_id": request.player_id,
         "player_name": player["name"],
-        "starting_balance": player["current_balance"]
+        "starting_balance": player["current_balance"],
+        "chips_in_game": 0.0  # Initialize chips in game
     }
     
     await db.games.update_one(
