@@ -165,6 +165,54 @@ backend:
           agent: "testing"
           comment: "Dashboard endpoint providing accurate statistics on active games, total players, credit/debt amounts, and recent transactions."
 
+  - task: "Money Format Fixes"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ Money formatting verified - backend correctly stores and handles various money amounts (whole numbers, decimals, thousands). Storage working properly for amounts like $1,000, $1,500.50, $25,000, $100.25, $0."
+
+  - task: "Chips in Game Logic"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ chips_in_game logic working perfectly. All players initialize with chips_in_game: 0.0 when added to games. Mid-game player additions also get proper initialization. Game session isolation confirmed - no chip carryover between games."
+
+  - task: "Transaction Processing with Chips Tracking"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ Transaction processing with chips_in_game tracking verified. Cash/Bank Transfer/Credit transactions correctly ADD to chips_in_game. Tested: Alice cash $1,000 (0.0→1,000.0), Bob bank transfer $750 (0.0→750.0), Charlie credit $500 (0.0→500.0). Total table calculation accurate: $1,950.00."
+
+  - task: "Cashed Out Logic"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ Cashed out logic working correctly. Cashed out transactions properly SUBTRACT from chips_in_game for specific games. Tested: Alice cashout $300 (1,000.0→700.0), then $200 (700.0→500.0). Amount correctly subtracted from player's chips in that specific game."
+
 frontend:
   - task: "Mobile App Navigation Structure"
     implemented: true
