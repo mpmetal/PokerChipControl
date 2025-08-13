@@ -126,6 +126,20 @@ async def update_player(player_id: str, player_update: PlayerUpdate):
     updated_player = await db.players.find_one({"id": player_id})
     return Player(**updated_player)
 
+@api_router.delete("/players/{player_id}")
+async def delete_player(player_id: str):
+    # Check if player is in any active games
+    active_games = await db.games.find({"status": GameStatus.ACTIVE}).to_list(1000)
+    for game in active_games:
+        if any(p["player_id"] == player_id for p in game["players"]):
+            raise HTTPException(status_code=400, detail="Cannot delete player who is in an active game")
+    
+    result = await db.players.delete_one({"id": player_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Player not found")
+    
+    return {"message": "Player deleted successfully"}
+
 # Game Routes
 @api_router.post("/games", response_model=Game)
 async def create_game(game_data: GameCreate):
