@@ -92,7 +92,7 @@ export default function GameScreen() {
           style: 'destructive',
           onPress: async () => {
             await closeCurrentGame();
-            navigation.navigate('Home' as never);
+            router.push('/');
           }
         }
       ]
