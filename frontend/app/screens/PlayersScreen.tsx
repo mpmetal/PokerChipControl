@@ -211,40 +211,62 @@ export default function PlayersScreen() {
       {/* Players List */}
       <ScrollView style={styles.playersList}>
         {players.map((player) => (
-          <TouchableOpacity
-            key={player.id}
-            style={[
-              styles.playerCard,
-              selectedPlayers.has(player.id) && styles.selectedPlayer
-            ]}
-            onPress={() => showNewGame && togglePlayerSelection(player.id)}
-          >
-            <View style={styles.playerInfo}>
-              <Text style={styles.playerName}>{player.name}</Text>
-              <Text style={styles.playerStats}>
-                Total Played: ${player.total_played.toFixed(2)}
-              </Text>
-            </View>
-            
-            <View style={styles.balanceContainer}>
-              <Text style={[styles.balanceAmount, { color: getBalanceColor(player.current_balance) }]}>
-                {formatBalance(player.current_balance)}
-              </Text>
-              <Text style={styles.balanceLabel}>
-                {player.current_balance > 0 ? 'Credit' : player.current_balance < 0 ? 'Debt' : 'Even'}
-              </Text>
-            </View>
+          <View key={player.id} style={styles.playerCard}>
+            <TouchableOpacity
+              style={[
+                styles.playerContent,
+                selectedPlayers.has(player.id) && styles.selectedPlayer
+              ]}
+              onPress={() => showNewGame && togglePlayerSelection(player.id)}
+            >
+              <View style={styles.playerInfo}>
+                <Text style={styles.playerName}>{player.name}</Text>
+                <Text style={styles.playerStats}>
+                  Total Played: ${player.total_played.toFixed(2)}
+                </Text>
+              </View>
+              
+              <View style={styles.balanceContainer}>
+                <Text style={[styles.balanceAmount, { color: getBalanceColor(player.current_balance) }]}>
+                  {formatBalance(player.current_balance)}
+                </Text>
+                <Text style={styles.balanceLabel}>
+                  {player.current_balance > 0 ? 'Credit' : player.current_balance < 0 ? 'Debt' : 'Even'}
+                </Text>
+              </View>
 
-            {showNewGame && (
-              <View style={styles.checkboxContainer}>
-                <Ionicons 
-                  name={selectedPlayers.has(player.id) ? "checkbox" : "square-outline"} 
-                  size={24} 
-                  color="#2E7D32" 
-                />
+              {showNewGame && (
+                <View style={styles.checkboxContainer}>
+                  <Ionicons 
+                    name={selectedPlayers.has(player.id) ? "checkbox" : "square-outline"} 
+                    size={24} 
+                    color="#1976D2" 
+                  />
+                </View>
+              )}
+            </TouchableOpacity>
+
+            {/* Action Buttons - Always Visible */}
+            {!showNewGame && (
+              <View style={styles.playerActions}>
+                <TouchableOpacity 
+                  style={styles.editButton}
+                  onPress={() => handleEditPlayer(player)}
+                >
+                  <Ionicons name="pencil" size={16} color="#1976D2" />
+                  <Text style={styles.editButtonText}>Edit</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.deleteButton}
+                  onPress={() => handleDeletePlayer(player)}
+                >
+                  <Ionicons name="trash" size={16} color="#f44336" />
+                  <Text style={styles.deleteButtonText}>Delete</Text>
+                </TouchableOpacity>
               </View>
             )}
-          </TouchableOpacity>
+          </View>
         ))}
 
         {players.length === 0 && (
