@@ -317,6 +317,56 @@ export default function PlayersScreen() {
           </View>
         </KeyboardAvoidingView>
       </Modal>
+
+      {/* Edit Player Modal */}
+      <Modal visible={showEditPlayer} transparent animationType="slide">
+        <KeyboardAvoidingView 
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Edit Player</Text>
+            
+            <TextInput
+              style={styles.input}
+              placeholder="Player name"
+              value={editPlayerName}
+              onChangeText={setEditPlayerName}
+              autoFocus
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Current balance"
+              value={editPlayerBalance}
+              onChangeText={setEditPlayerBalance}
+              keyboardType="numeric"
+            />
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.cancelButton}
+                onPress={() => {
+                  setShowEditPlayer(false);
+                  setEditingPlayer(null);
+                  setEditPlayerName('');
+                  setEditPlayerBalance('');
+                }}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.addButton}
+                onPress={handleUpdatePlayer}
+                disabled={!editPlayerName.trim()}
+              >
+                <Text style={styles.addButtonText}>Update Player</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }
