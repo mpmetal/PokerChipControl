@@ -156,6 +156,14 @@ export default function HomeScreen() {
           <Ionicons name="time" size={24} color="#2E7D32" />
           <Text style={styles.secondaryButtonText}>Game History</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.secondaryButton} 
+          onPress={() => router.push('/reports')}
+        >
+          <Ionicons name="bar-chart" size={24} color="#2E7D32" />
+          <Text style={styles.secondaryButtonText}>Player Reports</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Recent Transactions */}
