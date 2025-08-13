@@ -248,6 +248,40 @@ async def get_game_transactions(game_id: str):
     transactions = await db.transactions.find({"game_id": game_id}).sort("timestamp", 1).to_list(1000)
     return [Transaction(**transaction) for transaction in transactions]
 
+@api_router.post("/games/{game_id}/add-player")
+async def add_player_to_game(game_id: str, player_id: str):
+    # Get game
+    game = await db.games.find_one({"id": game_id})
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    if game.get("status") != GameStatus.ACTIVE:
+        raise HTTPException(status_code=400, detail="Cannot add players to closed game")
+    
+    # Check if player already in game
+    existing_player_ids = [p["player_id"] for p in game["players"]]
+    if player_id in existing_player_ids:
+        raise HTTPException(status_code=400, detail="Player already in this game")
+    
+    # Get player info
+    player = await db.players.find_one({"id": player_id})
+    if not player:
+        raise HTTPException(status_code=404, detail="Player not found")
+    
+    # Add player to game
+    new_player_info = {
+        "player_id": player_id,
+        "player_name": player["name"],
+        "starting_balance": player["current_balance"]
+    }
+    
+    await db.games.update_one(
+        {"id": game_id},
+        {"$push": {"players": new_player_info}}
+    )
+    
+    return {"message": "Player added to game successfully", "player": new_player_info}
+
+
 @api_router.post("/games/{game_id}/close")
 async def close_game(game_id: str):
     # Get game
