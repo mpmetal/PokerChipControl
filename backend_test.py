@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Comprehensive Backend API Test for Poker Chip Management System
-Tests all endpoints in the specified order from the review request.
+Focus on updated fixes: Money formatting, chips_in_game logic, transaction processing, and cashed out logic.
 """
 
 import requests
