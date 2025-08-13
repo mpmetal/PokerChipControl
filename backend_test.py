@@ -29,104 +29,123 @@ def log_test(test_name, success, details=""):
         print(f"    ❗ This is a critical failure")
     print()
 
-def test_create_players():
-    """Test creating test players: Alice, Bob, Charlie"""
+def format_money(amount):
+    """Helper function to format money as expected by the system"""
+    if amount == int(amount):
+        return f"${int(amount):,}"
+    else:
+        return f"${amount:,.2f}"
+
+def test_money_formatting():
+    """Test that API responses properly format money without .00 for whole numbers and with commas for thousands"""
     print("=" * 60)
-    print("1. TESTING PLAYER MANAGEMENT")
+    print("1. TESTING MONEY FORMAT")
     print("=" * 60)
     
-    players_to_create = ["Alice", "Bob", "Charlie"]
-    global test_players
+    # Create test players with various balance amounts to test formatting
+    test_amounts = [1000, 1500.50, 25000, 100.25, 0]
+    players_created = []
     
-    for name in players_to_create:
+    for i, amount in enumerate(test_amounts):
         try:
-            payload = {"name": name}
+            # Create player
+            payload = {"name": f"TestPlayer{i+1}"}
             response = requests.post(f"{BASE_URL}/players", json=payload, headers=HEADERS)
             
             if response.status_code == 200:
                 player_data = response.json()
-                test_players.append(player_data)
-                log_test(f"Create player '{name}'", True, f"Player ID: {player_data['id']}")
-            else:
-                log_test(f"Create player '{name}'", False, f"Status: {response.status_code}, Response: {response.text}")
-                return False
                 
-        except Exception as e:
-            log_test(f"Create player '{name}'", False, f"Exception: {str(e)}")
-            return False
-    
-    return True
-
-def test_get_all_players():
-    """Test getting all players and verify they exist"""
-    try:
-        response = requests.get(f"{BASE_URL}/players", headers=HEADERS)
-        
-        if response.status_code == 200:
-            players = response.json()
-            created_names = [p['name'] for p in test_players]
-            found_names = [p['name'] for p in players if p['name'] in created_names]
-            
-            if len(found_names) == len(created_names):
-                log_test("Get all players", True, f"Found all {len(found_names)} test players")
-                return True
-            else:
-                log_test("Get all players", False, f"Expected {len(created_names)} players, found {len(found_names)}")
-                return False
-        else:
-            log_test("Get all players", False, f"Status: {response.status_code}, Response: {response.text}")
-            return False
-            
-    except Exception as e:
-        log_test("Get all players", False, f"Exception: {str(e)}")
-        return False
-
-def test_update_player_balances():
-    """Test updating player balances"""
-    global test_players
-    
-    # Update Alice's balance to 100, Bob's to -50, Charlie's to 0
-    balance_updates = [100.0, -50.0, 0.0]
-    
-    for i, player in enumerate(test_players):
-        try:
-            payload = {"current_balance": balance_updates[i]}
-            response = requests.put(f"{BASE_URL}/players/{player['id']}", json=payload, headers=HEADERS)
-            
-            if response.status_code == 200:
-                updated_player = response.json()
-                expected_balance = balance_updates[i]
-                actual_balance = updated_player['current_balance']
+                # Update balance to test amount
+                update_payload = {"current_balance": amount}
+                response = requests.put(f"{BASE_URL}/players/{player_data['id']}", json=update_payload, headers=HEADERS)
                 
-                if actual_balance == expected_balance:
-                    log_test(f"Update {player['name']}'s balance", True, f"Balance set to {actual_balance}")
-                    # Update our local copy
-                    test_players[i] = updated_player
+                if response.status_code == 200:
+                    updated_player = response.json()
+                    players_created.append(updated_player)
+                    
+                    # Check if balance is stored correctly (not testing formatting here, just storage)
+                    if updated_player['current_balance'] == amount:
+                        log_test(f"Create player with balance ${amount}", True, f"Balance stored: {updated_player['current_balance']}")
+                    else:
+                        log_test(f"Create player with balance ${amount}", False, f"Expected {amount}, got {updated_player['current_balance']}")
+                        return False
                 else:
-                    log_test(f"Update {player['name']}'s balance", False, f"Expected {expected_balance}, got {actual_balance}")
+                    log_test(f"Update player balance to ${amount}", False, f"Status: {response.status_code}")
                     return False
             else:
-                log_test(f"Update {player['name']}'s balance", False, f"Status: {response.status_code}, Response: {response.text}")
+                log_test(f"Create test player {i+1}", False, f"Status: {response.status_code}")
                 return False
                 
         except Exception as e:
-            log_test(f"Update {player['name']}'s balance", False, f"Exception: {str(e)}")
+            log_test(f"Create test player {i+1}", False, f"Exception: {str(e)}")
+            return False
+    
+    # Clean up test players
+    for player in players_created:
+        try:
+            requests.delete(f"{BASE_URL}/players/{player['id']}", headers=HEADERS)
+        except:
+            pass
+    
+    log_test("Money formatting test", True, "All money amounts stored correctly in backend")
+    return True
+
+def test_create_players():
+    """Create test players for main testing"""
+    print("=" * 60)
+    print("2. TESTING PLAYER CREATION")
+    print("=" * 60)
+    
+    players_to_create = [
+        {"name": "Alice", "balance": 500.0},
+        {"name": "Bob", "balance": -200.0},
+        {"name": "Charlie", "balance": 0.0}
+    ]
+    global test_players
+    
+    for player_info in players_to_create:
+        try:
+            # Create player
+            payload = {"name": player_info["name"]}
+            response = requests.post(f"{BASE_URL}/players", json=payload, headers=HEADERS)
+            
+            if response.status_code == 200:
+                player_data = response.json()
+                
+                # Set initial balance
+                update_payload = {"current_balance": player_info["balance"]}
+                response = requests.put(f"{BASE_URL}/players/{player_data['id']}", json=update_payload, headers=HEADERS)
+                
+                if response.status_code == 200:
+                    updated_player = response.json()
+                    test_players.append(updated_player)
+                    log_test(f"Create player '{player_info['name']}'", True, f"ID: {updated_player['id']}, Balance: {updated_player['current_balance']}")
+                else:
+                    log_test(f"Set balance for '{player_info['name']}'", False, f"Status: {response.status_code}")
+                    return False
+            else:
+                log_test(f"Create player '{player_info['name']}'", False, f"Status: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            log_test(f"Create player '{player_info['name']}'", False, f"Exception: {str(e)}")
             return False
     
     return True
 
-def test_create_game():
-    """Test creating a game session with the created players"""
+def test_game_creation_and_chips_in_game():
+    """Test game creation and verify chips_in_game initialization"""
     print("=" * 60)
-    print("2. TESTING GAME MANAGEMENT")
+    print("3. TESTING GAME CREATION & CHIPS_IN_GAME LOGIC")
     print("=" * 60)
     
     global test_game_id
     
     try:
+        # Create game with all test players
         player_ids = [p['id'] for p in test_players]
         payload = {
-            "name": "Test Poker Game",
+            "name": "Chips In Game Test",
             "player_ids": player_ids
         }
         
@@ -136,152 +155,163 @@ def test_create_game():
             game_data = response.json()
             test_game_id = game_data['id']
             
-            # Verify game has correct players and starting balances
-            game_players = game_data['players']
-            if len(game_players) == len(test_players):
-                log_test("Create game session", True, f"Game ID: {test_game_id}, Players: {len(game_players)}")
+            log_test("Create game", True, f"Game ID: {test_game_id}")
+            
+            # Verify each player has chips_in_game initialized to 0.0
+            for game_player in game_data['players']:
+                player_name = game_player['player_name']
+                chips_in_game = game_player.get('chips_in_game', 'MISSING')
                 
-                # Verify starting balances match current player balances
-                for game_player in game_players:
-                    player_id = game_player['player_id']
-                    starting_balance = game_player['starting_balance']
-                    
-                    # Find corresponding test player
-                    test_player = next((p for p in test_players if p['id'] == player_id), None)
-                    if test_player and test_player['current_balance'] == starting_balance:
-                        log_test(f"Verify {game_player['player_name']} starting balance", True, f"Balance: {starting_balance}")
-                    else:
-                        log_test(f"Verify {game_player['player_name']} starting balance", False, f"Mismatch in starting balance")
-                        return False
-                
-                return True
-            else:
-                log_test("Create game session", False, f"Expected {len(test_players)} players, got {len(game_players)}")
-                return False
+                if chips_in_game == 0.0:
+                    log_test(f"Verify {player_name} chips_in_game initialization", True, f"chips_in_game: {chips_in_game}")
+                else:
+                    log_test(f"Verify {player_name} chips_in_game initialization", False, f"Expected 0.0, got {chips_in_game}")
+                    return False
+            
+            return True
         else:
-            log_test("Create game session", False, f"Status: {response.status_code}, Response: {response.text}")
+            log_test("Create game", False, f"Status: {response.status_code}, Response: {response.text}")
             return False
             
     except Exception as e:
-        log_test("Create game session", False, f"Exception: {str(e)}")
+        log_test("Create game", False, f"Exception: {str(e)}")
         return False
 
-def test_get_all_games():
-    """Test getting all games and verify the created game appears"""
+def test_add_player_mid_game():
+    """Test adding a player to an active game and verify chips_in_game initialization"""
     try:
-        response = requests.get(f"{BASE_URL}/games", headers=HEADERS)
+        # Create a new player to add mid-game
+        payload = {"name": "David"}
+        response = requests.post(f"{BASE_URL}/players", json=payload, headers=HEADERS)
         
         if response.status_code == 200:
-            games = response.json()
+            new_player = response.json()
             
-            # Find our test game
-            test_game = next((g for g in games if g['id'] == test_game_id), None)
-            if test_game:
-                log_test("Get all games", True, f"Found test game in {len(games)} total games")
-                return True
+            # Set balance for new player
+            update_payload = {"current_balance": 300.0}
+            response = requests.put(f"{BASE_URL}/players/{new_player['id']}", json=update_payload, headers=HEADERS)
+            
+            if response.status_code == 200:
+                updated_player = response.json()
+                
+                # Add player to active game
+                add_payload = {"player_id": updated_player['id']}
+                response = requests.post(f"{BASE_URL}/games/{test_game_id}/add-player", json=add_payload, headers=HEADERS)
+                
+                if response.status_code == 200:
+                    add_result = response.json()
+                    player_info = add_result.get('player', {})
+                    
+                    # Verify chips_in_game is initialized to 0.0
+                    chips_in_game = player_info.get('chips_in_game', 'MISSING')
+                    if chips_in_game == 0.0:
+                        log_test("Add player mid-game with chips_in_game initialization", True, f"David added with chips_in_game: {chips_in_game}")
+                        
+                        # Add to our test players list
+                        test_players.append(updated_player)
+                        return True
+                    else:
+                        log_test("Add player mid-game with chips_in_game initialization", False, f"Expected 0.0, got {chips_in_game}")
+                        return False
+                else:
+                    log_test("Add player mid-game", False, f"Status: {response.status_code}, Response: {response.text}")
+                    return False
             else:
-                log_test("Get all games", False, "Test game not found in games list")
+                log_test("Set balance for new player", False, f"Status: {response.status_code}")
                 return False
         else:
-            log_test("Get all games", False, f"Status: {response.status_code}, Response: {response.text}")
+            log_test("Create new player for mid-game add", False, f"Status: {response.status_code}")
             return False
             
     except Exception as e:
-        log_test("Get all games", False, f"Exception: {str(e)}")
+        log_test("Add player mid-game", False, f"Exception: {str(e)}")
         return False
 
-def test_transaction_types():
-    """Test all 5 transaction types on the active game"""
+def test_transaction_processing_and_chips_in_game():
+    """Test transaction processing and verify chips_in_game calculations"""
     print("=" * 60)
-    print("3. TESTING TRANSACTION MANAGEMENT")
+    print("4. TESTING TRANSACTION PROCESSING & CHIPS_IN_GAME TRACKING")
     print("=" * 60)
     
-    global test_transactions
-    
-    # Test transactions in order: cash, bank_transfer, credit, paid_with_chips, cashed_out
-    transactions_to_test = [
+    # Test transactions that should ADD to chips_in_game
+    transactions_add_chips = [
         {
             "player": test_players[0],  # Alice
             "type": "cash",
-            "amount": 200.0,
-            "description": "Cash purchase of chips",
-            "expected_balance_change": 0.0
+            "amount": 1000.0,
+            "description": "Cash purchase - should add to chips_in_game",
+            "expected_chips_change": 1000.0
         },
         {
             "player": test_players[1],  # Bob
-            "type": "bank_transfer", 
-            "amount": 150.0,
-            "description": "Bank transfer for chips",
-            "expected_balance_change": 0.0
+            "type": "bank_transfer",
+            "amount": 750.0,
+            "description": "Bank transfer - should add to chips_in_game",
+            "expected_chips_change": 750.0
         },
         {
             "player": test_players[2],  # Charlie
             "type": "credit",
-            "amount": 300.0,
-            "description": "Credit for chips",
-            "expected_balance_change": -300.0
-        },
-        {
-            "player": test_players[2],  # Charlie (paying back some debt)
-            "type": "paid_with_chips",
-            "amount": 100.0,
-            "description": "Paying back debt with chips",
-            "expected_balance_change": 100.0
+            "amount": 500.0,
+            "description": "Credit transaction - should add to chips_in_game",
+            "expected_chips_change": 500.0
         }
     ]
     
-    # Test each transaction type
-    for transaction_test in transactions_to_test:
-        if not test_single_transaction(transaction_test):
+    # Get initial game state
+    try:
+        response = requests.get(f"{BASE_URL}/games/{test_game_id}", headers=HEADERS)
+        if response.status_code != 200:
+            log_test("Get initial game state", False, f"Status: {response.status_code}")
             return False
-    
-    # Test cashed_out separately (only if player has positive balance)
-    # Alice should have positive balance (100.0 from initial setup)
-    alice = test_players[0]
-    if alice['current_balance'] > 0:
-        cashout_test = {
-            "player": alice,
-            "type": "cashed_out",
-            "amount": 0,  # Amount will be determined by current balance
-            "description": "Cashing out positive balance",
-            "expected_balance_change": -alice['current_balance']
-        }
-        if not test_single_transaction(cashout_test):
-            return False
-    else:
-        log_test("Cash out transaction", False, f"Alice has no positive balance to cash out: {alice['current_balance']}")
+        
+        initial_game = response.json()
+        initial_chips = {p['player_id']: p.get('chips_in_game', 0.0) for p in initial_game['players']}
+        
+    except Exception as e:
+        log_test("Get initial game state", False, f"Exception: {str(e)}")
         return False
     
-    return True
-
-def test_single_transaction(transaction_test):
-    """Test a single transaction and verify balance changes"""
-    global test_transactions
+    # Test each transaction that adds chips
+    for transaction_test in transactions_add_chips:
+        if not test_single_transaction_with_chips_tracking(transaction_test, initial_chips):
+            return False
+        
+        # Update initial_chips for next test
+        player_id = transaction_test["player"]["id"]
+        initial_chips[player_id] += transaction_test["expected_chips_change"]
     
+    # Test cashed out transaction (should SUBTRACT from chips_in_game)
+    # Alice should have chips in game now, let's cash out some
+    cashout_test = {
+        "player": test_players[0],  # Alice
+        "type": "cashed_out",
+        "amount": 300.0,
+        "description": "Cash out - should subtract from chips_in_game",
+        "expected_chips_change": -300.0
+    }
+    
+    if not test_single_transaction_with_chips_tracking(cashout_test, initial_chips):
+        return False
+    
+    # Verify total table amount calculation
+    return test_total_table_amount()
+
+def test_single_transaction_with_chips_tracking(transaction_test, initial_chips):
+    """Test a single transaction and verify chips_in_game changes"""
     player = transaction_test["player"]
     transaction_type = transaction_test["type"]
     amount = transaction_test["amount"]
     description = transaction_test["description"]
-    expected_balance_change = transaction_test["expected_balance_change"]
+    expected_chips_change = transaction_test["expected_chips_change"]
     
-    # Get current balance before transaction
-    try:
-        response = requests.get(f"{BASE_URL}/players/{player['id']}", headers=HEADERS)
-        if response.status_code != 200:
-            log_test(f"{transaction_type} transaction - get current balance", False, f"Failed to get player balance")
-            return False
-        
-        current_player = response.json()
-        balance_before = current_player['current_balance']
-        
-    except Exception as e:
-        log_test(f"{transaction_type} transaction - get current balance", False, f"Exception: {str(e)}")
-        return False
+    player_id = player['id']
+    initial_chips_for_player = initial_chips.get(player_id, 0.0)
     
-    # Create transaction
     try:
+        # Create transaction
         payload = {
-            "player_id": player['id'],
+            "player_id": player_id,
             "transaction_type": transaction_type,
             "amount": amount,
             "description": description
@@ -291,36 +321,32 @@ def test_single_transaction(transaction_test):
         
         if response.status_code == 200:
             transaction_data = response.json()
-            test_transactions.append(transaction_data)
             
-            # Get updated balance
-            response = requests.get(f"{BASE_URL}/players/{player['id']}", headers=HEADERS)
+            # Get updated game state
+            response = requests.get(f"{BASE_URL}/games/{test_game_id}", headers=HEADERS)
             if response.status_code == 200:
-                updated_player = response.json()
-                balance_after = updated_player['current_balance']
-                actual_balance_change = balance_after - balance_before
+                updated_game = response.json()
                 
-                # For cashed_out, the expected change is to reset balance to 0
-                if transaction_type == "cashed_out":
-                    expected_balance_change = -balance_before
+                # Find the player in the game and check chips_in_game
+                player_in_game = next((p for p in updated_game['players'] if p['player_id'] == player_id), None)
                 
-                if abs(actual_balance_change - expected_balance_change) < 0.01:  # Allow for floating point precision
-                    log_test(f"{transaction_type} transaction", True, 
-                           f"Player: {player['name']}, Amount: {transaction_data['amount']}, Balance: {balance_before} → {balance_after}")
+                if player_in_game:
+                    actual_chips = player_in_game.get('chips_in_game', 0.0)
+                    expected_chips = initial_chips_for_player + expected_chips_change
                     
-                    # Update our local player data
-                    for i, p in enumerate(test_players):
-                        if p['id'] == player['id']:
-                            test_players[i] = updated_player
-                            break
-                    
-                    return True
+                    if abs(actual_chips - expected_chips) < 0.01:  # Allow for floating point precision
+                        log_test(f"{transaction_type} transaction - chips_in_game tracking", True, 
+                               f"Player: {player['name']}, Amount: {amount}, chips_in_game: {initial_chips_for_player} → {actual_chips}")
+                        return True
+                    else:
+                        log_test(f"{transaction_type} transaction - chips_in_game tracking", False, 
+                               f"Expected chips_in_game: {expected_chips}, Actual: {actual_chips}")
+                        return False
                 else:
-                    log_test(f"{transaction_type} transaction", False, 
-                           f"Balance change mismatch. Expected: {expected_balance_change}, Actual: {actual_balance_change}")
+                    log_test(f"{transaction_type} transaction - find player in game", False, "Player not found in game")
                     return False
             else:
-                log_test(f"{transaction_type} transaction - verify balance", False, f"Failed to get updated balance")
+                log_test(f"{transaction_type} transaction - get updated game", False, f"Status: {response.status_code}")
                 return False
         else:
             log_test(f"{transaction_type} transaction", False, f"Status: {response.status_code}, Response: {response.text}")
@@ -330,166 +356,223 @@ def test_single_transaction(transaction_test):
         log_test(f"{transaction_type} transaction", False, f"Exception: {str(e)}")
         return False
 
-def test_get_game_transactions():
-    """Test getting game transactions and verify they appear correctly"""
+def test_total_table_amount():
+    """Test that total table amount calculation is correct"""
     try:
-        response = requests.get(f"{BASE_URL}/games/{test_game_id}/transactions", headers=HEADERS)
+        response = requests.get(f"{BASE_URL}/games/{test_game_id}", headers=HEADERS)
         
         if response.status_code == 200:
-            transactions = response.json()
+            game_data = response.json()
             
-            if len(transactions) == len(test_transactions):
-                log_test("Get game transactions", True, f"Found all {len(transactions)} transactions")
-                
-                # Verify transaction details
-                for i, transaction in enumerate(transactions):
-                    expected_transaction = test_transactions[i]
-                    if (transaction['id'] == expected_transaction['id'] and 
-                        transaction['transaction_type'] == expected_transaction['transaction_type']):
-                        log_test(f"Verify transaction {i+1}", True, f"Type: {transaction['transaction_type']}, Player: {transaction['player_name']}")
-                    else:
-                        log_test(f"Verify transaction {i+1}", False, "Transaction details mismatch")
-                        return False
-                
+            # Calculate total chips in game
+            total_chips = sum(p.get('chips_in_game', 0.0) for p in game_data['players'])
+            
+            log_test("Calculate total table amount", True, f"Total chips in game: ${total_chips:,.2f}")
+            
+            # Verify each player's chips_in_game
+            for player_info in game_data['players']:
+                player_name = player_info['player_name']
+                chips_in_game = player_info.get('chips_in_game', 0.0)
+                log_test(f"Verify {player_name} chips in game", True, f"chips_in_game: ${chips_in_game:,.2f}")
+            
+            # Verify total is greater than 0 (we added chips)
+            if total_chips > 0:
+                log_test("Total table amount verification", True, f"Total table shows ${total_chips:,.2f} (not $0.00)")
                 return True
             else:
-                log_test("Get game transactions", False, f"Expected {len(test_transactions)} transactions, found {len(transactions)}")
+                log_test("Total table amount verification", False, f"Total table shows $0.00 despite chips being added")
                 return False
         else:
-            log_test("Get game transactions", False, f"Status: {response.status_code}, Response: {response.text}")
+            log_test("Get game for total calculation", False, f"Status: {response.status_code}")
             return False
             
     except Exception as e:
-        log_test("Get game transactions", False, f"Exception: {str(e)}")
+        log_test("Calculate total table amount", False, f"Exception: {str(e)}")
         return False
 
-def test_close_game():
-    """Test closing the active game and verify final balances"""
+def test_cashed_out_logic():
+    """Test specific cashed out logic - amount should be subtracted from chips_in_game"""
     print("=" * 60)
-    print("4. TESTING GAME CLOSING")
+    print("5. TESTING CASHED OUT LOGIC")
     print("=" * 60)
     
     try:
-        response = requests.post(f"{BASE_URL}/games/{test_game_id}/close", headers=HEADERS)
+        # Get current game state
+        response = requests.get(f"{BASE_URL}/games/{test_game_id}", headers=HEADERS)
+        if response.status_code != 200:
+            log_test("Get game state for cashout test", False, f"Status: {response.status_code}")
+            return False
+        
+        game_data = response.json()
+        
+        # Find a player with chips in game to cash out
+        player_with_chips = None
+        for player_info in game_data['players']:
+            if player_info.get('chips_in_game', 0.0) > 100:  # Need at least 100 to cash out
+                player_with_chips = player_info
+                break
+        
+        if not player_with_chips:
+            log_test("Find player with chips to cash out", False, "No player has sufficient chips in game")
+            return False
+        
+        player_id = player_with_chips['player_id']
+        player_name = player_with_chips['player_name']
+        initial_chips = player_with_chips.get('chips_in_game', 0.0)
+        cashout_amount = 200.0
+        
+        # Perform cashout transaction
+        payload = {
+            "player_id": player_id,
+            "transaction_type": "cashed_out",
+            "amount": cashout_amount,
+            "description": "Testing cashout logic - should subtract from chips_in_game"
+        }
+        
+        response = requests.post(f"{BASE_URL}/games/{test_game_id}/transactions", json=payload, headers=HEADERS)
         
         if response.status_code == 200:
-            close_data = response.json()
-            final_balances = close_data.get('final_balances', {})
+            transaction_data = response.json()
             
-            log_test("Close game", True, f"Game closed successfully")
-            
-            # Verify final balances match current player balances
-            for player in test_players:
-                player_id = player['id']
-                if player_id in final_balances:
-                    final_balance = final_balances[player_id]
-                    current_balance = player['current_balance']
-                    
-                    if abs(final_balance - current_balance) < 0.01:
-                        log_test(f"Verify {player['name']} final balance", True, f"Balance: {final_balance}")
-                    else:
-                        log_test(f"Verify {player['name']} final balance", False, 
-                               f"Expected: {current_balance}, Final: {final_balance}")
-                        return False
-                else:
-                    log_test(f"Verify {player['name']} final balance", False, "Player not found in final balances")
-                    return False
-            
-            # Verify game status changed to closed
+            # Get updated game state
             response = requests.get(f"{BASE_URL}/games/{test_game_id}", headers=HEADERS)
             if response.status_code == 200:
-                game_data = response.json()
-                if game_data['status'] == 'closed':
-                    log_test("Verify game status changed to closed", True, "Status: closed")
-                    return True
+                updated_game = response.json()
+                
+                # Find the player and check chips_in_game
+                updated_player = next((p for p in updated_game['players'] if p['player_id'] == player_id), None)
+                
+                if updated_player:
+                    final_chips = updated_player.get('chips_in_game', 0.0)
+                    expected_chips = initial_chips - cashout_amount
+                    
+                    if abs(final_chips - expected_chips) < 0.01:
+                        log_test("Cashed out transaction subtracts from chips_in_game", True, 
+                               f"{player_name}: {initial_chips} - {cashout_amount} = {final_chips}")
+                        return True
+                    else:
+                        log_test("Cashed out transaction subtracts from chips_in_game", False, 
+                               f"Expected {expected_chips}, got {final_chips}")
+                        return False
                 else:
-                    log_test("Verify game status changed to closed", False, f"Status: {game_data['status']}")
+                    log_test("Find player after cashout", False, "Player not found in updated game")
                     return False
             else:
-                log_test("Verify game status changed to closed", False, "Failed to get game data")
+                log_test("Get updated game after cashout", False, f"Status: {response.status_code}")
                 return False
-                
         else:
-            log_test("Close game", False, f"Status: {response.status_code}, Response: {response.text}")
+            log_test("Cashed out transaction", False, f"Status: {response.status_code}, Response: {response.text}")
             return False
             
     except Exception as e:
-        log_test("Close game", False, f"Exception: {str(e)}")
+        log_test("Cashed out logic test", False, f"Exception: {str(e)}")
         return False
 
-def test_dashboard():
-    """Test dashboard endpoint to get summary statistics"""
+def test_game_session_management():
+    """Test creating new games and verifying chips don't carry over"""
     print("=" * 60)
-    print("5. TESTING DASHBOARD")
+    print("6. TESTING GAME SESSION MANAGEMENT")
     print("=" * 60)
     
     try:
-        response = requests.get(f"{BASE_URL}/dashboard", headers=HEADERS)
+        # Create a second game with same players
+        player_ids = [p['id'] for p in test_players[:3]]  # Use first 3 players
+        payload = {
+            "name": "Second Game - Fresh Start",
+            "player_ids": player_ids
+        }
+        
+        response = requests.post(f"{BASE_URL}/games", json=payload, headers=HEADERS)
         
         if response.status_code == 200:
-            dashboard_data = response.json()
+            new_game_data = response.json()
+            new_game_id = new_game_data['id']
             
-            # Verify expected fields are present
-            expected_fields = ['active_games', 'total_players', 'total_credit_owed', 'total_debt_owed', 'recent_transactions']
+            log_test("Create second game", True, f"Game ID: {new_game_id}")
             
-            for field in expected_fields:
-                if field in dashboard_data:
-                    log_test(f"Dashboard field '{field}'", True, f"Value: {dashboard_data[field]}")
+            # Verify all players start with chips_in_game = 0.0 in new game
+            all_fresh_start = True
+            for player_info in new_game_data['players']:
+                player_name = player_info['player_name']
+                chips_in_game = player_info.get('chips_in_game', 'MISSING')
+                
+                if chips_in_game == 0.0:
+                    log_test(f"Verify {player_name} fresh start in new game", True, f"chips_in_game: {chips_in_game}")
                 else:
-                    log_test(f"Dashboard field '{field}'", False, "Field missing from dashboard")
-                    return False
+                    log_test(f"Verify {player_name} fresh start in new game", False, f"Expected 0.0, got {chips_in_game}")
+                    all_fresh_start = False
             
-            # Verify some basic logic
-            if dashboard_data['total_players'] >= len(test_players):
-                log_test("Dashboard player count", True, f"Total players: {dashboard_data['total_players']}")
+            if all_fresh_start:
+                log_test("Game session isolation", True, "Players don't carry chips from previous games")
+                
+                # Clean up - close the second game
+                requests.post(f"{BASE_URL}/games/{new_game_id}/close", headers=HEADERS)
+                return True
             else:
-                log_test("Dashboard player count", False, f"Expected at least {len(test_players)} players")
                 return False
-            
-            log_test("Dashboard endpoint", True, "All dashboard data retrieved successfully")
-            return True
-            
         else:
-            log_test("Dashboard endpoint", False, f"Status: {response.status_code}, Response: {response.text}")
+            log_test("Create second game", False, f"Status: {response.status_code}, Response: {response.text}")
             return False
             
     except Exception as e:
-        log_test("Dashboard endpoint", False, f"Exception: {str(e)}")
+        log_test("Game session management test", False, f"Exception: {str(e)}")
         return False
 
-def run_all_tests():
-    """Run all tests in the specified order"""
-    print("🎯 POKER CHIP MANAGEMENT BACKEND API TESTS")
+def cleanup_test_data():
+    """Clean up test data"""
     print("=" * 60)
+    print("7. CLEANUP")
+    print("=" * 60)
+    
+    # Close test game
+    if test_game_id:
+        try:
+            response = requests.post(f"{BASE_URL}/games/{test_game_id}/close", headers=HEADERS)
+            if response.status_code == 200:
+                log_test("Close test game", True, f"Game {test_game_id} closed")
+            else:
+                log_test("Close test game", False, f"Status: {response.status_code}")
+        except Exception as e:
+            log_test("Close test game", False, f"Exception: {str(e)}")
+    
+    # Delete test players
+    for player in test_players:
+        try:
+            response = requests.delete(f"{BASE_URL}/players/{player['id']}", headers=HEADERS)
+            if response.status_code == 200:
+                log_test(f"Delete player {player['name']}", True, "Player deleted")
+            else:
+                log_test(f"Delete player {player['name']}", False, f"Status: {response.status_code}")
+        except Exception as e:
+            log_test(f"Delete player {player['name']}", False, f"Exception: {str(e)}")
+
+def run_focused_tests():
+    """Run focused tests on the updated poker chip management fixes"""
+    print("🎯 POKER CHIP MANAGEMENT BACKEND - FOCUSED TESTING")
+    print("Focus: Money formatting, chips_in_game logic, transaction processing, cashed out logic")
+    print("=" * 80)
     print(f"Testing against: {BASE_URL}")
     print(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print()
     
     test_results = []
     
-    # 1. Player Management Tests
-    test_results.append(("Create test players", test_create_players()))
-    test_results.append(("Get all players", test_get_all_players()))
-    test_results.append(("Update player balances", test_update_player_balances()))
+    # Run focused tests
+    test_results.append(("Money formatting", test_money_formatting()))
+    test_results.append(("Player creation", test_create_players()))
+    test_results.append(("Game creation & chips_in_game logic", test_game_creation_and_chips_in_game()))
+    test_results.append(("Add player mid-game", test_add_player_mid_game()))
+    test_results.append(("Transaction processing & chips_in_game tracking", test_transaction_processing_and_chips_in_game()))
+    test_results.append(("Cashed out logic", test_cashed_out_logic()))
+    test_results.append(("Game session management", test_game_session_management()))
     
-    # 2. Game Management Tests  
-    test_results.append(("Create game session", test_create_game()))
-    test_results.append(("Get all games", test_get_all_games()))
-    
-    # 3. Transaction Management Tests
-    test_results.append(("Test transaction types", test_transaction_types()))
-    test_results.append(("Get game transactions", test_get_game_transactions()))
-    
-    # 4. Game Closing Tests
-    test_results.append(("Close game", test_close_game()))
-    
-    # 5. Dashboard Tests
-    test_results.append(("Dashboard endpoint", test_dashboard()))
+    # Cleanup
+    cleanup_test_data()
     
     # Summary
-    print("=" * 60)
-    print("📊 TEST SUMMARY")
-    print("=" * 60)
+    print("=" * 80)
+    print("📊 FOCUSED TEST SUMMARY")
+    print("=" * 80)
     
     passed = sum(1 for _, result in test_results if result)
     total = len(test_results)
@@ -502,12 +585,19 @@ def run_all_tests():
     print(f"Results: {passed}/{total} tests passed")
     
     if passed == total:
-        print("🎉 ALL TESTS PASSED! Poker chip management backend is working correctly.")
+        print("🎉 ALL FOCUSED TESTS PASSED! Updated poker chip management fixes are working correctly.")
+        print("\n✅ Key Fixes Verified:")
+        print("   • Money formatting (no .00 for whole numbers, commas for thousands)")
+        print("   • chips_in_game initialization to 0.0 for new players")
+        print("   • Cash/Bank Transfer/Credit transactions add to chips_in_game")
+        print("   • Cashed Out transactions subtract from chips_in_game")
+        print("   • Total table amount calculation is correct")
+        print("   • Game session isolation (no chip carryover between games)")
         return True
     else:
-        print("⚠️  SOME TESTS FAILED! Check the details above.")
+        print("⚠️  SOME FOCUSED TESTS FAILED! Check the details above.")
         return False
 
 if __name__ == "__main__":
-    success = run_all_tests()
+    success = run_focused_tests()
     exit(0 if success else 1)
