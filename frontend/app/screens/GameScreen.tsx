@@ -184,10 +184,14 @@ export default function GameScreen() {
     <View style={styles.container}>
       {/* Game Header */}
       <View style={styles.gameHeader}>
-        <View>
+        <View style={styles.headerLeft}>
           <Text style={styles.gameTitle}>{currentGame.name}</Text>
           <Text style={styles.gameDate}>
             {new Date(currentGame.date).toLocaleDateString()}
+          </Text>
+          {/* Total Table Amount */}
+          <Text style={styles.totalTableAmount}>
+            Total Table: ${totalChipsInPlay.toFixed(2)}
           </Text>
         </View>
         
