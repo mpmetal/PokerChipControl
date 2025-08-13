@@ -86,20 +86,69 @@ export default function PlayersScreen() {
 
       {/* Action Buttons */}
       <View style={styles.actionContainer}>
-        <TouchableOpacity 
-          style={styles.selectButton}
-          onPress={() => setShowNewGame(true)}
-        >
-          <Ionicons name="game-controller" size={20} color="#fff" />
-          <Text style={styles.buttonText}>Start New Game</Text>
-        </TouchableOpacity>
-        
-        {/* Help Text */}
-        <View style={styles.helpContainer}>
-          <Text style={styles.helpText}>
-            👆 Tap "Start New Game" to select players and begin!
-          </Text>
-        </View>
+        {!showNewGame ? (
+          <>
+            <TouchableOpacity 
+              style={styles.selectButton}
+              onPress={() => setShowNewGame(true)}
+            >
+              <Ionicons name="game-controller" size={20} color="#fff" />
+              <Text style={styles.buttonText}>Start New Game</Text>
+            </TouchableOpacity>
+            
+            {/* Help Text */}
+            <View style={styles.helpContainer}>
+              <Text style={styles.helpText}>
+                👆 Tap "Start New Game" to select players and begin!
+              </Text>
+            </View>
+          </>
+        ) : (
+          <>
+            {/* Game Name Input */}
+            <View style={styles.gameSetupContainer}>
+              <Text style={styles.setupTitle}>🎮 Create New Game</Text>
+              <TextInput
+                style={styles.gameNameInput}
+                placeholder="Game name (e.g., Friday Night)"
+                value={gameName}
+                onChangeText={setGameName}
+              />
+              
+              <Text style={styles.selectionTitle}>
+                Select Players ({selectedPlayers.size} selected)
+              </Text>
+              <Text style={styles.selectionInstruction}>
+                👇 Tap players below to select them for the game
+              </Text>
+            </View>
+
+            {/* Action Buttons */}
+            <View style={styles.gameActionButtons}>
+              <TouchableOpacity 
+                style={styles.cancelGameButton}
+                onPress={() => {
+                  setShowNewGame(false);
+                  setSelectedPlayers(new Set());
+                  setGameName('');
+                }}
+              >
+                <Text style={styles.cancelGameButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[
+                  styles.startGameButton,
+                  { opacity: selectedPlayers.size < 2 || !gameName.trim() ? 0.5 : 1 }
+                ]}
+                onPress={handleStartGame}
+                disabled={selectedPlayers.size < 2 || !gameName.trim()}
+              >
+                <Text style={styles.startGameButtonText}>Start Game</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
       </View>
 
       {/* Players List */}
