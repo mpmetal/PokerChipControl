@@ -294,11 +294,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Mobile App Navigation Structure"
-    - "Home Screen with Dashboard"
-    - "Player Management Screen"
-    - "Active Game Screen"
-    - "Game History Screen"
+    - "Money Format Fixes"
+    - "Chips in Game Logic"
+    - "Transaction Processing with Chips Tracking"
+    - "Cashed Out Logic"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
