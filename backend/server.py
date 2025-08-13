@@ -571,94 +571,168 @@ async def create_subscription_user(
     
     return new_user
 
-@api_router.get("/subscription/status/{player_id}", response_model=SubscriptionStatus)
-async def get_subscription_status(
-    player_id: str,
-    pg_db: Session = Depends(get_subscription_db)
-):
+@api_router.get("/subscription/status/{player_id}")
+async def get_subscription_status(player_id: str):
     """Get subscription status for a player."""
-    user = pg_db.query(SubscriptionUser).filter(
-        SubscriptionUser.poker_player_id == player_id
-    ).first()
-    
-    if not user:
-        # User doesn't exist, eligible for trial
-        return SubscriptionStatus(
-            is_premium=False,
-            days_remaining=0,
-            is_trial=False,
-            can_start_trial=True
-        )
-    
-    # Check if subscription is active
-    is_premium = user.is_premium
-    if user.subscription_expires_at:
-        now = datetime.now(timezone.utc)
-        if user.subscription_expires_at.tzinfo is None:
-            expires_at = user.subscription_expires_at.replace(tzinfo=timezone.utc)
-        else:
-            expires_at = user.subscription_expires_at
+    try:
+        # Try PostgreSQL first
+        if PgSessionLocal:
+            db = next(get_subscription_db())
+            user = db.query(SubscriptionUser).filter(
+                SubscriptionUser.poker_player_id == player_id
+            ).first()
+            
+            if user:
+                is_premium = user.is_premium
+                if user.subscription_expires_at:
+                    now = datetime.now(timezone.utc)
+                    if user.subscription_expires_at.tzinfo is None:
+                        expires_at = user.subscription_expires_at.replace(tzinfo=timezone.utc)
+                    else:
+                        expires_at = user.subscription_expires_at
+                    
+                    if expires_at <= now:
+                        is_premium = False
+                        user.is_premium = False
+                        db.commit()
+                
+                days_remaining = 0
+                if user.subscription_expires_at and is_premium:
+                    days_remaining = calculate_days_remaining(user.subscription_expires_at)
+                
+                is_trial = False
+                if user.trial_started_at and is_premium:
+                    trial_end = user.trial_started_at + timedelta(days=7)
+                    now = datetime.now(timezone.utc)
+                    if user.trial_started_at.tzinfo is None:
+                        trial_end = trial_end.replace(tzinfo=timezone.utc)
+                    is_trial = now <= trial_end
+                
+                return {
+                    "is_premium": is_premium,
+                    "days_remaining": days_remaining,
+                    "is_trial": is_trial,
+                    "can_start_trial": not user.has_used_trial and not user.trial_expired
+                }
         
-        if expires_at <= now:
-            is_premium = False
-            # Update user status
-            user.is_premium = False
-            pg_db.commit()
-    
-    # Calculate days remaining
-    days_remaining = 0
-    if user.subscription_expires_at and is_premium:
-        days_remaining = calculate_days_remaining(user.subscription_expires_at)
-    
-    # Check if currently in trial
-    is_trial = False
-    if user.trial_started_at and is_premium:
-        trial_end = user.trial_started_at + timedelta(days=7)
-        now = datetime.now(timezone.utc)
-        if user.trial_started_at.tzinfo is None:
-            trial_end = trial_end.replace(tzinfo=timezone.utc)
-        is_trial = now <= trial_end
-    
-    return SubscriptionStatus(
-        is_premium=is_premium,
-        days_remaining=days_remaining,
-        is_trial=is_trial,
-        can_start_trial=check_trial_eligibility(user)
-    )
+        # Fallback to memory storage
+        user = get_user_from_memory(player_id)
+        if user:
+            is_premium = user.get("is_premium", False)
+            expires_at = user.get("subscription_expires_at")
+            
+            if expires_at and isinstance(expires_at, str):
+                expires_at = datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
+                now = datetime.now(timezone.utc)
+                if expires_at <= now:
+                    is_premium = False
+                    user["is_premium"] = False
+                    save_user_to_memory(player_id, user)
+            
+            days_remaining = 0
+            if expires_at and is_premium:
+                now = datetime.now(timezone.utc)
+                if isinstance(expires_at, str):
+                    expires_at = datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
+                delta = expires_at - now
+                days_remaining = max(0, delta.days)
+            
+            is_trial = user.get("is_trial", False)
+            
+            return {
+                "is_premium": is_premium,
+                "days_remaining": days_remaining,
+                "is_trial": is_trial,
+                "can_start_trial": not user.get("has_used_trial", False)
+            }
+        
+        # User doesn't exist, eligible for trial
+        return {
+            "is_premium": False,
+            "days_remaining": 0,
+            "is_trial": False,
+            "can_start_trial": True
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting subscription status: {str(e)}")
+        return {
+            "is_premium": False,
+            "days_remaining": 0,
+            "is_trial": False,
+            "can_start_trial": True
+        }
 
 @api_router.post("/subscription/start-trial/{player_id}")
-async def start_free_trial(
-    player_id: str,
-    pg_db: Session = Depends(get_subscription_db)
-):
+async def start_free_trial(player_id: str):
     """Start free trial for a player (7 days)."""
-    user = pg_db.query(SubscriptionUser).filter(
-        SubscriptionUser.poker_player_id == player_id
-    ).first()
-    
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    if not check_trial_eligibility(user):
-        raise HTTPException(status_code=400, detail="User not eligible for trial")
-    
-    # Start trial
-    now = datetime.now(timezone.utc)
-    trial_end = now + timedelta(days=7)
-    
-    user.is_premium = True
-    user.trial_started_at = now
-    user.subscription_expires_at = trial_end
-    user.has_used_trial = True
-    user.subscription_platform = "trial"
-    
-    pg_db.commit()
-    
-    return {
-        "message": "Free trial started successfully",
-        "trial_ends_at": trial_end.isoformat(),
-        "days_remaining": 7
-    }
+    try:
+        now = datetime.now(timezone.utc)
+        trial_end = now + timedelta(days=7)
+        
+        # Try PostgreSQL first
+        if PgSessionLocal:
+            db = next(get_subscription_db())
+            user = db.query(SubscriptionUser).filter(
+                SubscriptionUser.poker_player_id == player_id
+            ).first()
+            
+            if not user:
+                # Create new user
+                revenuecat_user_id = create_revenuecat_user_id(player_id)
+                user = SubscriptionUser(
+                    poker_player_id=player_id,
+                    email=f"{player_id}@temp.com",
+                    revenuecat_user_id=revenuecat_user_id
+                )
+                db.add(user)
+            
+            if user.has_used_trial:
+                raise HTTPException(status_code=400, detail="User not eligible for trial")
+            
+            user.is_premium = True
+            user.trial_started_at = now
+            user.subscription_expires_at = trial_end
+            user.has_used_trial = True
+            user.subscription_platform = "trial"
+            
+            db.commit()
+        else:
+            # Use memory storage
+            user = get_user_from_memory(player_id)
+            if not user:
+                user = {
+                    "poker_player_id": player_id,
+                    "email": f"{player_id}@temp.com",
+                    "is_premium": False,
+                    "has_used_trial": False,
+                }
+            
+            if user.get("has_used_trial", False):
+                raise HTTPException(status_code=400, detail="User not eligible for trial")
+            
+            user.update({
+                "is_premium": True,
+                "trial_started_at": now.isoformat(),
+                "subscription_expires_at": trial_end.isoformat(),
+                "has_used_trial": True,
+                "subscription_platform": "trial",
+                "is_trial": True
+            })
+            
+            save_user_to_memory(player_id, user)
+        
+        return {
+            "message": "Free trial started successfully",
+            "trial_ends_at": trial_end.isoformat(),
+            "days_remaining": 7
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error starting trial: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to start trial")
 
 @api_router.post("/webhooks/revenuecat")
 async def handle_revenuecat_webhook(
