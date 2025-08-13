@@ -77,6 +77,7 @@ export default function PlayersScreen() {
     setEditingPlayer(player);
     setEditPlayerName(player.name);
     setEditPlayerBalance(player.current_balance.toString());
+    setEditPlayerPhoto(player.photo || null);
     setShowEditPlayer(true);
   };
 
@@ -88,11 +89,12 @@ export default function PlayersScreen() {
 
     try {
       const balance = parseFloat(editPlayerBalance) || editingPlayer.current_balance;
-      await updatePlayer(editingPlayer.id, editPlayerName.trim(), balance);
+      await updatePlayer(editingPlayer.id, editPlayerName.trim(), balance, editPlayerPhoto || undefined);
       setShowEditPlayer(false);
       setEditingPlayer(null);
       setEditPlayerName('');
       setEditPlayerBalance('');
+      setEditPlayerPhoto(null);
     } catch (error) {
       Alert.alert('Error', 'Failed to update player. Please try again.');
     }
