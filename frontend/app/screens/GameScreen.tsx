@@ -451,6 +451,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
   },
+  headerActions: {
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: 8,
+  },
+  addPlayerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    gap: 4,
+  },
+  addPlayerText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
   gameTitle: {
     fontSize: 20,
     fontWeight: 'bold',
