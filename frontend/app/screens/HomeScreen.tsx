@@ -149,12 +149,12 @@ export default function HomeScreen() {
         {currentGame ? (
           <TouchableOpacity style={styles.continueButton} onPress={handleContinueGame}>
             <Ionicons name="play" size={24} color="#fff" />
-            <Text style={styles.buttonText}>Continue Game: {currentGame.name}</Text>
+            <Text style={styles.buttonText}>{t.continue_game}: {currentGame.name}</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.newGameButton} onPress={handleNewGame}>
             <Ionicons name="add-circle" size={24} color="#fff" />
-            <Text style={styles.buttonText}>New Game Session</Text>
+            <Text style={styles.buttonText}>{t.new_game_session}</Text>
           </TouchableOpacity>
         )}
 
@@ -162,24 +162,24 @@ export default function HomeScreen() {
           style={styles.secondaryButton} 
           onPress={() => router.push('/players')}
         >
-          <Ionicons name="people" size={24} color="#2E7D32" />
-          <Text style={styles.secondaryButtonText}>Manage Players</Text>
+          <Ionicons name="people" size={24} color="#1976D2" />
+          <Text style={styles.secondaryButtonText}>{t.manage_players}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.secondaryButton} 
           onPress={() => router.push('/history')}
         >
-          <Ionicons name="time" size={24} color="#2E7D32" />
-          <Text style={styles.secondaryButtonText}>Game History</Text>
+          <Ionicons name="time" size={24} color="#1976D2" />
+          <Text style={styles.secondaryButtonText}>{t.game_history}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.secondaryButton} 
           onPress={() => router.push('/reports')}
         >
-          <Ionicons name="bar-chart" size={24} color="#2E7D32" />
-          <Text style={styles.secondaryButtonText}>Player Reports</Text>
+          <Ionicons name="bar-chart" size={24} color="#1976D2" />
+          <Text style={styles.secondaryButtonText}>{t.player_reports}</Text>
         </TouchableOpacity>
       </View>
 
