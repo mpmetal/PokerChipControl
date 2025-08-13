@@ -254,6 +254,17 @@ export default function PlayersScreen() {
               ]}
               onPress={() => showNewGame && togglePlayerSelection(player.id)}
             >
+              {/* Circular Photo */}
+              <View style={styles.photoContainer}>
+                {player.photo ? (
+                  <Image source={{ uri: player.photo }} style={styles.playerPhoto} />
+                ) : (
+                  <View style={styles.defaultPhoto}>
+                    <Ionicons name="person" size={24} color="#1976D2" />
+                  </View>
+                )}
+              </View>
+
               <View style={styles.playerInfo}>
                 <Text style={styles.playerName}>{player.name}</Text>
                 <Text style={styles.playerStats}>
