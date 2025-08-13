@@ -65,12 +65,12 @@ export default function HomeScreen() {
       );
       return;
     }
-    navigation.navigate('Players' as never);
+    router.push('/players');
   };
 
   const handleContinueGame = () => {
     if (currentGame) {
-      navigation.navigate('Game' as never);
+      router.push('/game');
     }
   };
 
