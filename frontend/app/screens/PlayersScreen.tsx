@@ -414,12 +414,12 @@ const styles = StyleSheet.create({
   },
   helpText: {
     fontSize: 14,
-    color: '#2E7D32',
+    color: '#1976D2',
     textAlign: 'center',
     fontWeight: '500',
   },
   gameSetupContainer: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#E3F2FD',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -427,14 +427,14 @@ const styles = StyleSheet.create({
   setupTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2E7D32',
+    color: '#1976D2',
     textAlign: 'center',
     marginBottom: 12,
   },
   gameNameInput: {
     backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#C5E1A5',
+    borderColor: '#BBDEFB',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
@@ -443,12 +443,12 @@ const styles = StyleSheet.create({
   selectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#2E7D32',
+    color: '#1976D2',
     marginBottom: 4,
   },
   selectionInstruction: {
     fontSize: 14,
-    color: '#4CAF50',
+    color: '#1976D2',
     textAlign: 'center',
   },
   gameActionButtons: {
