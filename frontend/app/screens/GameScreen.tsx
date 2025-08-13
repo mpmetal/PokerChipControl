@@ -202,6 +202,9 @@ export default function GameScreen() {
                 <Text style={styles.startingBalance}>
                   Started: {formatBalance(gamePlayer.starting_balance)}
                 </Text>
+                <Text style={styles.totalPlayed}>
+                  Total Played: ${player.total_played.toFixed(2)}
+                </Text>
               </View>
 
               <View style={styles.currentBalanceContainer}>
