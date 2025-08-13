@@ -459,6 +459,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
   },
+  headerLeft: {
+    flex: 1,
+  },
+  totalTableAmount: {
+    color: '#A5D6A7',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 4,
+  },
   headerActions: {
     flexDirection: 'column',
     alignItems: 'flex-end',
