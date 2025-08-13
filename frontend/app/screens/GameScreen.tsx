@@ -25,8 +25,9 @@ const TRANSACTION_TYPES = [
 
 export default function GameScreen() {
   const router = useRouter();
-  const { currentGame, players, transactions, closeCurrentGame, createTransaction, fetchGameTransactions } = useGame();
+  const { currentGame, players, transactions, closeCurrentGame, createTransaction, fetchGameTransactions, addPlayerToGame } = useGame();
   const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [showAddPlayerModal, setShowAddPlayerModal] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const [selectedTransactionType, setSelectedTransactionType] = useState('');
   const [amount, setAmount] = useState('');
