@@ -135,6 +135,30 @@ class PlayerUpdate(BaseModel):
     current_balance: Optional[float] = None
     photo: Optional[str] = None
 
+# Subscription Pydantic models
+class SubscriptionUserCreate(BaseModel):
+    poker_player_id: str
+    email: str
+
+class SubscriptionUserResponse(BaseModel):
+    id: int
+    poker_player_id: str
+    email: str
+    is_premium: bool
+    subscription_platform: Optional[str]
+    subscription_expires_at: Optional[datetime]
+    has_used_trial: bool
+    trial_expired: bool
+    
+    class Config:
+        from_attributes = True
+
+class SubscriptionStatus(BaseModel):
+    is_premium: bool
+    days_remaining: Optional[int] = None
+    is_trial: bool = False
+    can_start_trial: bool = True
+
 class Transaction(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     game_id: str
