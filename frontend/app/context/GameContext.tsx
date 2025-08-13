@@ -51,6 +51,7 @@ interface GameContextType {
   createGame: (name: string, playerIds: string[]) => Promise<void>;
   setCurrentGame: (game: Game) => void;
   closeCurrentGame: () => Promise<void>;
+  addPlayerToGame: (gameId: string, playerId: string) => Promise<void>;
   
   // Transaction methods
   fetchGameTransactions: (gameId: string) => Promise<void>;
