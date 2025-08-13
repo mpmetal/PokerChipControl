@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   newGameButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#1976D2',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#2E7D32',
+    borderColor: '#1976D2',
     gap: 8,
   },
   buttonText: {
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   secondaryButtonText: {
-    color: '#2E7D32',
+    color: '#1976D2',
     fontSize: 16,
     fontWeight: '600',
   },
