@@ -225,6 +225,29 @@ export default function GameProvider({ children }: GameProviderProps) {
     }
   };
 
+  const addPlayerToGame = async (gameId: string, playerId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/games/${gameId}/add-player`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ player_id: playerId }),
+      });
+      
+      if (response.ok) {
+        await fetchGames(); // Refresh games to update current game
+        await fetchPlayers(); // Refresh players if needed
+      } else {
+        const errorText = await response.text();
+        throw new Error(`Failed to add player: ${errorText}`);
+      }
+    } catch (error) {
+      console.error('Error adding player to game:', error);
+      throw error;
+    }
+  };
+
   const fetchDashboard = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/dashboard`);
