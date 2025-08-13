@@ -60,7 +60,7 @@ export default function HomeScreen() {
         'There is already an active game. Please close it before starting a new one.',
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'View Game', onPress: () => navigation.navigate('Game' as never) }
+          { text: 'View Game', onPress: () => router.push('/game') }
         ]
       );
       return;
