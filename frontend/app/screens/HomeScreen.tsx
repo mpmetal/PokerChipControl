@@ -12,7 +12,6 @@ import {
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useGame } from '../context/GameContext';
 import { useLanguage } from '../context/LanguageContext';
-import { useSubscription } from '../context/SubscriptionContext';
 import { useRouter } from 'expo-router';
 
 interface DashboardData {
