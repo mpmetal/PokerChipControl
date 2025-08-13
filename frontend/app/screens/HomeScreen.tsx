@@ -126,7 +126,7 @@ export default function HomeScreen() {
         <View style={styles.balanceContainer}>
           <View style={styles.balanceCard}>
             <View style={styles.balanceHeader}>
-              <Ionicons name="trending-up" size={24} color="#4CAF50" />
+              <Ionicons name="trending-up" size={24} color="#1976D2" />
               <Text style={styles.balanceTitle}>{t.credit_owed}</Text>
             </View>
             <Text style={styles.creditAmount}>${dashboardData.total_credit_owed.toFixed(2)}</Text>
