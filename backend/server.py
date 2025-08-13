@@ -248,6 +248,13 @@ async def create_transaction(game_id: str, transaction_data: TransactionCreate):
         }}
     )
     
+    # Update chips_in_game for this specific game (if chips were added)
+    if total_played_change > 0:
+        await db.games.update_one(
+            {"id": game_id, "players.player_id": transaction_data.player_id},
+            {"$inc": {"players.$.chips_in_game": total_played_change}}
+        )
+    
     # Save transaction
     await db.transactions.insert_one(transaction.dict())
     
