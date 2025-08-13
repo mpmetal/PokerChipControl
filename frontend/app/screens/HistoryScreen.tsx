@@ -44,7 +44,7 @@ export default function HistoryScreen() {
   const handleGamePress = (game: any) => {
     if (game.status === 'active') {
       setCurrentGame(game);
-      navigation.navigate('Game' as never);
+      router.push('/game');
     } else {
       // Show game details for closed games
       showGameDetails(game);
