@@ -110,6 +110,11 @@ export default function GameScreen() {
   };
 
   const handleCloseGame = () => {
+    if (!currentGame) {
+      Alert.alert('Error', 'No active game to close.');
+      return;
+    }
+
     Alert.alert(
       'Close Game',
       'Are you sure you want to close this game? All balances will be finalized and carried over to future games.',
@@ -119,8 +124,19 @@ export default function GameScreen() {
           text: 'Close Game', 
           style: 'destructive',
           onPress: async () => {
-            await closeCurrentGame();
-            router.push('/');
+            try {
+              console.log('Closing game from UI:', currentGame.id);
+              await closeCurrentGame();
+              console.log('Game closed successfully, navigating home');
+              router.push('/');
+            } catch (error) {
+              console.error('Error in handleCloseGame:', error);
+              Alert.alert(
+                'Error Closing Game', 
+                error.message || 'Failed to close the game. Please try again.',
+                [{ text: 'OK' }]
+              );
+            }
           }
         }
       ]
