@@ -45,13 +45,11 @@ const SubscriptionScreen: React.FC = () => {
   const handlePurchase = async () => {
     setPurchasing(true);
     try {
-      const success = await purchaseSubscription();
-      if (success) {
-        // Navigate back to home after successful purchase
-        setTimeout(() => {
-          router.back();
-        }, 2000);
-      }
+      // For demo, just show alert
+      Alert.alert(
+        'Demo Mode',
+        'En producción, aquí se procesaría el pago real a través de Google Play Store o App Store.'
+      );
     } finally {
       setPurchasing(false);
     }
@@ -60,7 +58,11 @@ const SubscriptionScreen: React.FC = () => {
   const handleRestore = async () => {
     setPurchasing(true);
     try {
-      await restorePurchases();
+      // For demo, just show alert
+      Alert.alert(
+        'Demo Mode',
+        'En producción, aquí se restaurarían las compras desde la store.'
+      );
     } finally {
       setPurchasing(false);
     }
