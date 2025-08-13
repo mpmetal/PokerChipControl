@@ -219,10 +219,20 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
+  headerLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
   logo: {
-    height: 60,
-    width: 200,
-    marginVertical: 8,
+    height: 40,
+    width: 40,
+  },
+  appName: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   languageToggle: {
     flexDirection: 'row',
