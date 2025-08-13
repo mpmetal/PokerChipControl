@@ -283,7 +283,7 @@ export default function GameScreen() {
                   )}
                 </View>
                 <View style={styles.transactionRight}>
-                  <Text style={styles.transactionAmount}>${transaction.amount.toFixed(2)}</Text>
+                  <Text style={styles.transactionAmount}>${formatMoney(transaction.amount)}</Text>
                   <Text style={styles.transactionTime}>
                     {new Date(transaction.timestamp).toLocaleTimeString()}
                   </Text>
