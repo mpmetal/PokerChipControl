@@ -262,6 +262,8 @@ agent_communication:
       message: "Backend comprehensively tested - all endpoints working correctly. Fixed minor type annotation issue in Game model. Ready for frontend testing."
     - agent: "main"
       message: "User reported multiple issues: 1) Money format needs improvement (remove .00, add commas for thousands), 2) Chips not being added to table total correctly, 3) Players dragging chips from previous games, 4) Total Table shows $0.00 despite chips being added, 5) Cashed out chips not being subtracted from table total. Working on fixes."
+    - agent: "testing"
+      message: "FOCUSED TESTING COMPLETED: All updated poker chip management fixes verified and working correctly. ✅ Money formatting properly handled in backend storage, ✅ chips_in_game initialization to 0.0 for all new players, ✅ Cash/Bank Transfer/Credit transactions correctly add to chips_in_game, ✅ Cashed Out transactions properly subtract from chips_in_game, ✅ Total table amount calculation accurate ($1,950.00 in test), ✅ Game session isolation prevents chip carryover between games. All 7 focused test categories passed (7/7). Backend fixes are production-ready."
 
 user_problem_statement: "Test the poker chip management backend API with comprehensive testing of player management, game management, transaction management, game closing, and dashboard endpoints"
 
