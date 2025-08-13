@@ -121,7 +121,7 @@ export default function GameScreen() {
         <Text style={styles.noGameText}>No active game</Text>
         <TouchableOpacity 
           style={styles.startGameButton}
-          onPress={() => navigation.navigate('Players' as never)}
+          onPress={() => router.push('/players')}
         >
           <Text style={styles.startGameButtonText}>Start New Game</Text>
         </TouchableOpacity>
