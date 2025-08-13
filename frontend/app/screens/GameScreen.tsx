@@ -200,7 +200,7 @@ export default function GameScreen() {
           </Text>
           {/* Total Table Amount */}
           <Text style={styles.totalTableAmount}>
-            Total Table: ${totalChipsInPlay.toFixed(2)}
+            Total Table: ${formatMoney(totalChipsInPlay)}
           </Text>
         </View>
         
