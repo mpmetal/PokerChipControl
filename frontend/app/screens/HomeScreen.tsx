@@ -216,6 +216,12 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     flex: 1,
+    alignItems: 'center',
+  },
+  logo: {
+    height: 60,
+    width: 200,
+    marginVertical: 8,
   },
   languageToggle: {
     flexDirection: 'row',
