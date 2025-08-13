@@ -47,14 +47,17 @@ class Player(BaseModel):
     name: str
     current_balance: float = 0.0  # positive = credit owed to player, negative = player owes money
     total_played: float = 0.0
+    photo: Optional[str] = None  # Base64 encoded photo
     created_date: datetime = Field(default_factory=datetime.utcnow)
 
 class PlayerCreate(BaseModel):
     name: str
+    photo: Optional[str] = None
 
 class PlayerUpdate(BaseModel):
     name: Optional[str] = None
     current_balance: Optional[float] = None
+    photo: Optional[str] = None
 
 class Transaction(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
