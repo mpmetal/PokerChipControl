@@ -152,8 +152,8 @@ async def create_game(game_data: GameCreate):
         players_with_balances.append({
             "player_id": player_id,
             "player_name": player["name"],
-            "starting_balance": player["current_balance"]
-            # Note: total_played is NOT reset - it tracks lifetime chips played
+            "starting_balance": player["current_balance"],
+            "chips_in_game": 0.0  # Start fresh - no chips carried over from previous games
         })
     
     game = Game(name=game_data.name, players=players_with_balances)
