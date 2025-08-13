@@ -27,7 +27,7 @@ interface HistoryGame {
 }
 
 export default function HistoryScreen() {
-  const navigation = useNavigation();
+  const router = useRouter();
   const { games, fetchGames, isLoading, setCurrentGame } = useGame();
   const [refreshing, setRefreshing] = useState(false);
 
