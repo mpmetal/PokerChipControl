@@ -148,7 +148,7 @@ export default function HomeScreen() {
               <Ionicons name="trending-down" size={24} color="#f44336" />
               <Text style={styles.balanceTitle}>{t.debt_owed}</Text>
             </View>
-            <Text style={styles.debtAmount}>${dashboardData.total_debt_owed.toFixed(2)}</Text>
+            <Text style={styles.debtAmount}>${formatMoney(dashboardData.total_debt_owed)}</Text>
             <Text style={styles.balanceSubtitle}>{t.money_owed_by_players}</Text>
           </View>
         </View>
