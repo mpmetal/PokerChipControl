@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useGame } from '../context/GameContext';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 const TRANSACTION_TYPES = [
   { key: 'cash', label: 'Cash', icon: 'cash', color: '#4CAF50' },
