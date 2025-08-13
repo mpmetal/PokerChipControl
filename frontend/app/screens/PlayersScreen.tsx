@@ -333,6 +333,21 @@ export default function PlayersScreen() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Add New Player</Text>
             
+            {/* Photo Selection */}
+            <View style={styles.photoSelectionContainer}>
+              <Text style={styles.photoLabel}>Player Photo</Text>
+              <TouchableOpacity style={styles.photoButton} onPress={() => pickImage(false)}>
+                {newPlayerPhoto ? (
+                  <Image source={{ uri: newPlayerPhoto }} style={styles.photoPreview} />
+                ) : (
+                  <View style={styles.photoPlaceholder}>
+                    <Ionicons name="camera" size={24} color="#1976D2" />
+                    <Text style={styles.photoButtonText}>Add Photo</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
+            
             <TextInput
               style={styles.input}
               placeholder="Player name"
