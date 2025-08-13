@@ -153,6 +153,7 @@ async def create_game(game_data: GameCreate):
             "player_id": player_id,
             "player_name": player["name"],
             "starting_balance": player["current_balance"]
+            # Note: total_played is NOT reset - it tracks lifetime chips played
         })
     
     game = Game(name=game_data.name, players=players_with_balances)
