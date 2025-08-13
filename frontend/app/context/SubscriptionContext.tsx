@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Purchases, { CustomerInfo, PurchasesOffering } from 'react-native-purchases';
 import { Platform, Alert } from 'react-native';
 import Constants from 'expo-constants';
 
