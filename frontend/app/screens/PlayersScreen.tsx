@@ -238,54 +238,6 @@ export default function PlayersScreen() {
           </View>
         </KeyboardAvoidingView>
       </Modal>
-
-      {/* New Game Modal */}
-      <Modal visible={showNewGame} transparent animationType="slide">
-        <KeyboardAvoidingView 
-          style={styles.modalOverlay}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Start New Game</Text>
-            
-            <TextInput
-              style={styles.input}
-              placeholder="Game name (e.g., Friday Night)"
-              value={gameName}
-              onChangeText={setGameName}
-            />
-            
-            <Text style={styles.sectionTitle}>
-              Select Players ({selectedPlayers.size} selected)
-            </Text>
-            
-            <Text style={styles.instruction}>
-              Tap players above to select them for the game. Selected players will carry over their current balance.
-            </Text>
-            
-            <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={styles.cancelButton}
-                onPress={() => {
-                  setShowNewGame(false);
-                  setSelectedPlayers(new Set());
-                  setGameName('');
-                }}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.addButton}
-                onPress={handleStartGame}
-                disabled={selectedPlayers.size < 2 || !gameName.trim()}
-              >
-                <Text style={styles.addButtonText}>Start Game</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
     </View>
   );
 }
