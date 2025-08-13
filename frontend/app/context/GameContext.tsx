@@ -44,7 +44,9 @@ interface GameContextType {
   
   // Player methods
   fetchPlayers: () => Promise<void>;
-  createPlayer: (name: string) => Promise<void>;
+  createPlayer: (name: string, photo?: string) => Promise<void>;
+  updatePlayer: (playerId: string, name?: string, balance?: number, photo?: string) => Promise<void>;
+  deletePlayer: (playerId: string) => Promise<void>;
   
   // Game methods
   fetchGames: () => Promise<void>;
