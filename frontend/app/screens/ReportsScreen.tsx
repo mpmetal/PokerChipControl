@@ -248,32 +248,32 @@ export default function ReportsScreen() {
               
               <View style={styles.reportRow}>
                 <Text style={styles.reportLabel}>Total Chips Bought:</Text>
-                <Text style={styles.reportValue}>${report.total_chips_bought.toFixed(2)}</Text>
+                <Text style={styles.reportValue}>${formatMoney(report.total_chips_bought)}</Text>
               </View>
               
               <View style={styles.reportRow}>
                 <Text style={styles.reportLabel}>Cash Spent:</Text>
-                <Text style={styles.reportValue}>${report.total_cash_spent.toFixed(2)}</Text>
+                <Text style={styles.reportValue}>${formatMoney(report.total_cash_spent)}</Text>
               </View>
               
               <View style={styles.reportRow}>
                 <Text style={styles.reportLabel}>Bank Transfers:</Text>
-                <Text style={styles.reportValue}>${report.total_bank_transfers.toFixed(2)}</Text>
+                <Text style={styles.reportValue}>${formatMoney(report.total_bank_transfers)}</Text>
               </View>
               
               <View style={styles.reportRow}>
                 <Text style={styles.reportLabel}>Credit Taken:</Text>
-                <Text style={styles.reportValue}>${report.total_credit_taken.toFixed(2)}</Text>
+                <Text style={styles.reportValue}>${formatMoney(report.total_credit_taken)}</Text>
               </View>
               
               <View style={styles.reportRow}>
                 <Text style={styles.reportLabel}>Paid with Chips:</Text>
-                <Text style={styles.reportValue}>${report.total_paid_with_chips.toFixed(2)}</Text>
+                <Text style={styles.reportValue}>${formatMoney(report.total_paid_with_chips)}</Text>
               </View>
               
               <View style={styles.reportRow}>
                 <Text style={styles.reportLabel}>Cashed Out:</Text>
-                <Text style={styles.reportValue}>${report.total_cashed_out.toFixed(2)}</Text>
+                <Text style={styles.reportValue}>${formatMoney(report.total_cashed_out)}</Text>
               </View>
               
               <View style={styles.reportRow}>
