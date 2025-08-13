@@ -174,6 +174,12 @@ export default function GameScreen() {
     );
   }
 
+  // Calculate total chips in play
+  const totalChipsInPlay = currentGame.players.reduce((total, gamePlayer) => {
+    const player = players.find(p => p.id === gamePlayer.player_id);
+    return total + (player ? player.total_played : 0);
+  }, 0);
+
   return (
     <View style={styles.container}>
       {/* Game Header */}
