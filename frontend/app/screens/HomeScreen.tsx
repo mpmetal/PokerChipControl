@@ -139,7 +139,7 @@ export default function HomeScreen() {
               <Ionicons name="trending-up" size={24} color="#1976D2" />
               <Text style={styles.balanceTitle}>{t.credit_owed}</Text>
             </View>
-            <Text style={styles.creditAmount}>${dashboardData.total_credit_owed.toFixed(2)}</Text>
+            <Text style={styles.creditAmount}>${formatMoney(dashboardData.total_credit_owed)}</Text>
             <Text style={styles.balanceSubtitle}>{t.money_owed_to_players}</Text>
           </View>
 
