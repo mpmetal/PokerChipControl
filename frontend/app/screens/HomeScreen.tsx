@@ -143,7 +143,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity 
           style={styles.secondaryButton} 
-          onPress={() => navigation.navigate('Players' as never)}
+          onPress={() => router.push('/players')}
         >
           <Ionicons name="people" size={24} color="#2E7D32" />
           <Text style={styles.secondaryButtonText}>Manage Players</Text>
@@ -151,7 +151,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity 
           style={styles.secondaryButton} 
-          onPress={() => navigation.navigate('History' as never)}
+          onPress={() => router.push('/history')}
         >
           <Ionicons name="time" size={24} color="#2E7D32" />
           <Text style={styles.secondaryButtonText}>Game History</Text>
