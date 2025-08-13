@@ -87,8 +87,11 @@ export default function HomeScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>{t.poker_club_manager}</Text>
-          <Text style={styles.headerSubtitle}>{t.manage_chips_players_sessions}</Text>
+          <Image 
+            source={require('../../assets/logo_pcc.png')} 
+            style={styles.logo}
+            resizeMode="contain"
+          />
         </View>
         
         {/* Language Toggle */}
