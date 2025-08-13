@@ -21,7 +21,7 @@ interface DashboardData {
 }
 
 export default function HomeScreen() {
-  const navigation = useNavigation();
+  const router = useRouter();
   const { currentGame, isLoading, fetchPlayers, fetchGames } = useGame();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [refreshing, setRefreshing] = useState(false);
