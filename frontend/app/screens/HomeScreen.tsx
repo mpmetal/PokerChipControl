@@ -108,7 +108,7 @@ export default function HomeScreen() {
       {dashboardData && (
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
-            <Ionicons name="people" size={32} color="#4CAF50" />
+            <Ionicons name="people" size={32} color="#1976D2" />
             <Text style={styles.statNumber}>{dashboardData.total_players}</Text>
             <Text style={styles.statLabel}>{t.players}</Text>
           </View>
