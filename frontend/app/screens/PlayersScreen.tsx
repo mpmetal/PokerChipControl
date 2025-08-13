@@ -16,7 +16,7 @@ import { useGame } from '../context/GameContext';
 import { useRouter } from 'expo-router';
 
 export default function PlayersScreen() {
-  const navigation = useNavigation();
+  const router = useRouter();
   const { players, createPlayer, createGame, isLoading } = useGame();
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [newPlayerName, setNewPlayerName] = useState('');
