@@ -234,7 +234,7 @@ export default function GameScreen() {
                   Started: {formatBalance(gamePlayer.starting_balance)}
                 </Text>
                 <Text style={styles.totalPlayed}>
-                  Total Played: ${player.total_played.toFixed(2)}
+                  Chips in Game: ${formatMoney(gamePlayer.chips_in_game || 0)}
                 </Text>
               </View>
 
