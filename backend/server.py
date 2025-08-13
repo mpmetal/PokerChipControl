@@ -29,29 +29,15 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# PostgreSQL connection for subscriptions (optional for demo)
+# PostgreSQL connection for subscriptions (disabled for demo)
 DATABASE_URL = os.getenv("DATABASE_URL")
-try:
-    if DATABASE_URL:
-        pg_engine = create_engine(DATABASE_URL)
-        PgSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=pg_engine)
-        # Test connection
-        with pg_engine.connect() as conn:
-            conn.execute("SELECT 1")
-        print("PostgreSQL connected successfully")
-    else:
-        pg_engine = None
-        PgSessionLocal = None
-        print("PostgreSQL not configured, using in-memory storage for demo")
-except Exception as e:
-    print(f"PostgreSQL connection failed: {e}")
-    print("Using in-memory storage for subscription demo")
-    pg_engine = None
-    PgSessionLocal = None
+pg_engine = None
+PgSessionLocal = None
+print("PostgreSQL disabled for demo, using in-memory storage for subscriptions")
 
 PgBase = declarative_base()
 
-# In-memory storage for demo when PostgreSQL is not available
+# In-memory storage for demo
 subscription_users_memory = {}
 webhook_events_memory = []
 subscription_transactions_memory = []
