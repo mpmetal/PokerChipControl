@@ -86,12 +86,13 @@ export default function HomeScreen() {
     >
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.headerContent}>
+        <View style={styles.headerLeft}>
           <Image 
-            source={require('../../assets/logo_pcc.png')} 
+            source={require('../../assets/logo_pcc_cuadrado.png')} 
             style={styles.logo}
             resizeMode="contain"
           />
+          <Text style={styles.appName}>PokerChipControl</Text>
         </View>
         
         {/* Language Toggle */}
