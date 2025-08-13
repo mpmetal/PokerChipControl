@@ -106,13 +106,13 @@ export default function HomeScreen() {
           <View style={styles.statCard}>
             <Ionicons name="people" size={32} color="#4CAF50" />
             <Text style={styles.statNumber}>{dashboardData.total_players}</Text>
-            <Text style={styles.statLabel}>Players</Text>
+            <Text style={styles.statLabel}>{t.players}</Text>
           </View>
           
           <View style={styles.statCard}>
             <Ionicons name="game-controller" size={32} color="#2196F3" />
             <Text style={styles.statNumber}>{dashboardData.active_games}</Text>
-            <Text style={styles.statLabel}>Active Games</Text>
+            <Text style={styles.statLabel}>{t.active_games}</Text>
           </View>
         </View>
       )}
