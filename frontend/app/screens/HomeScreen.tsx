@@ -27,6 +27,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { currentGame, isLoading, fetchPlayers, fetchGames } = useGame();
   const { t, language, setLanguage } = useLanguage();
+  const { isPremium, isTrialActive, daysRemaining } = useSubscription();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
