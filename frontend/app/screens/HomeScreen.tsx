@@ -56,6 +56,15 @@ export default function HomeScreen() {
     setRefreshing(false);
   };
 
+  const formatMoney = (amount: number) => {
+    // Remove .00 if the amount is a whole number, add commas for thousands
+    if (amount % 1 === 0) {
+      return amount.toLocaleString('en-US');
+    } else {
+      return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+  };
+
   const handleNewGame = () => {
     if (currentGame) {
       Alert.alert(
