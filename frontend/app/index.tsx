@@ -2,13 +2,16 @@ import React from 'react';
 import { StyleSheet, SafeAreaView } from 'react-native';
 import HomeScreen from './screens/HomeScreen';
 import GameProvider from './context/GameContext';
+import LanguageProvider from './context/LanguageContext';
 
 export default function Index() {
   return (
     <SafeAreaView style={styles.container}>
-      <GameProvider>
-        <HomeScreen />
-      </GameProvider>
+      <LanguageProvider>
+        <GameProvider>
+          <HomeScreen />
+        </GameProvider>
+      </LanguageProvider>
     </SafeAreaView>
   );
 }
