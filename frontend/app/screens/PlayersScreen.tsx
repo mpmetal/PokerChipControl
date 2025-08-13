@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
   },
   startGameButton: {
     flex: 1,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#1976D2',
     borderRadius: 8,
     padding: 12,
     alignItems: 'center',
