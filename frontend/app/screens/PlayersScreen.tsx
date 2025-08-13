@@ -93,6 +93,13 @@ export default function PlayersScreen() {
           <Ionicons name="game-controller" size={20} color="#fff" />
           <Text style={styles.buttonText}>Start New Game</Text>
         </TouchableOpacity>
+        
+        {/* Help Text */}
+        <View style={styles.helpContainer}>
+          <Text style={styles.helpText}>
+            👆 Tap "Start New Game" to select players and begin!
+          </Text>
+        </View>
       </View>
 
       {/* Players List */}
