@@ -10,8 +10,10 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useGame } from '../context/GameContext';
 import { useRouter } from 'expo-router';
 
