@@ -30,10 +30,60 @@ export default function PlayersScreen() {
 
   const handleAddPlayer = async () => {
     if (newPlayerName.trim()) {
-      await createPlayer(newPlayerName.trim());
-      setNewPlayerName('');
-      setShowAddPlayer(false);
+      try {
+        await createPlayer(newPlayerName.trim());
+        setNewPlayerName('');
+        setShowAddPlayer(false);
+      } catch (error) {
+        Alert.alert('Error', 'Failed to create player. Please try again.');
+      }
     }
+  };
+
+  const handleEditPlayer = (player: any) => {
+    setEditingPlayer(player);
+    setEditPlayerName(player.name);
+    setEditPlayerBalance(player.current_balance.toString());
+    setShowEditPlayer(true);
+  };
+
+  const handleUpdatePlayer = async () => {
+    if (!editingPlayer || !editPlayerName.trim()) {
+      Alert.alert('Error', 'Please enter a valid name.');
+      return;
+    }
+
+    try {
+      const balance = parseFloat(editPlayerBalance) || editingPlayer.current_balance;
+      await updatePlayer(editingPlayer.id, editPlayerName.trim(), balance);
+      setShowEditPlayer(false);
+      setEditingPlayer(null);
+      setEditPlayerName('');
+      setEditPlayerBalance('');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update player. Please try again.');
+    }
+  };
+
+  const handleDeletePlayer = (player: any) => {
+    Alert.alert(
+      'Delete Player',
+      `Are you sure you want to delete ${player.name}? This action cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deletePlayer(player.id);
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete player. They may be in an active game.');
+            }
+          }
+        }
+      ]
+    );
   };
 
   const togglePlayerSelection = (playerId: string) => {
