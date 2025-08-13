@@ -57,7 +57,7 @@ export default function PlayersScreen() {
     setShowNewGame(false);
     setSelectedPlayers(new Set());
     setGameName('');
-    navigation.navigate('Game' as never);
+    router.push('/game');
   };
 
   const getBalanceColor = (balance: number) => {
