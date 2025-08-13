@@ -32,11 +32,40 @@ export default function PlayersScreen() {
   const [showNewGame, setShowNewGame] = useState(false);
   const [gameName, setGameName] = useState('');
 
+  const pickImage = async (isEditing = false) => {
+    // Request permission
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    
+    if (permissionResult.granted === false) {
+      Alert.alert('Permission Required', 'Permission to access camera roll is required!');
+      return;
+    }
+
+    // Open image picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1], // Square aspect ratio for circular photos
+      quality: 0.5, // Reduce quality to keep base64 size manageable
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets[0].base64) {
+      const base64 = `data:image/jpeg;base64,${result.assets[0].base64}`;
+      if (isEditing) {
+        setEditPlayerPhoto(base64);
+      } else {
+        setNewPlayerPhoto(base64);
+      }
+    }
+  };
+
   const handleAddPlayer = async () => {
     if (newPlayerName.trim()) {
       try {
-        await createPlayer(newPlayerName.trim());
+        await createPlayer(newPlayerName.trim(), newPlayerPhoto || undefined);
         setNewPlayerName('');
+        setNewPlayerPhoto(null);
         setShowAddPlayer(false);
       } catch (error) {
         Alert.alert('Error', 'Failed to create player. Please try again.');
