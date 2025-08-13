@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useGame } from '../context/GameContext';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 interface HistoryGame {
   id: string;
