@@ -51,13 +51,13 @@ export default function GameScreen() {
 
     let transactionAmount = 0;
     
-    // Handle cashed out - no amount needed, uses current positive balance
+    // Handle cashed out - player enters amount they want to cash out
     if (selectedTransactionType === 'cashed_out') {
-      if (selectedPlayer.current_balance <= 0) {
-        Alert.alert('Error', 'Player has no positive balance to cash out.');
+      if (!amount || parseFloat(amount) <= 0) {
+        Alert.alert('Error', 'Please enter a valid cash out amount.');
         return;
       }
-      transactionAmount = selectedPlayer.current_balance;
+      transactionAmount = parseFloat(amount);
     } else if (selectedTransactionType === 'paid_with_chips') {
       // For paid with chips, validate amount against what they can actually pay
       if (!amount || parseFloat(amount) <= 0) {
