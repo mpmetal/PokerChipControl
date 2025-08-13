@@ -197,18 +197,18 @@ export default function GameScreen() {
                 </Text>
               </View>
 
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.actionsContainer}>
-                {TRANSACTION_TYPES.map((type) => (
+              <View style={styles.actionsContainer}>
+                {TRANSACTION_TYPES.map((type, index) => (
                   <TouchableOpacity
                     key={type.key}
                     style={[styles.actionButton, { backgroundColor: type.color }]}
                     onPress={() => handleTransaction(player.id, type.key)}
                   >
-                    <Ionicons name={type.icon as any} size={16} color="#fff" />
+                    <Ionicons name={type.icon as any} size={14} color="#fff" />
                     <Text style={styles.actionButtonText}>{type.label}</Text>
                   </TouchableOpacity>
                 ))}
-              </ScrollView>
+              </View>
             </View>
           );
         })}
