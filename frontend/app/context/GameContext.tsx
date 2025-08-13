@@ -278,6 +278,7 @@ export default function GameProvider({ children }: GameProviderProps) {
     closeCurrentGame,
     fetchGameTransactions,
     createTransaction,
+    addPlayerToGame,
     fetchDashboard,
   };
 
