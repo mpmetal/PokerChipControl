@@ -123,19 +123,19 @@ export default function HomeScreen() {
           <View style={styles.balanceCard}>
             <View style={styles.balanceHeader}>
               <Ionicons name="trending-up" size={24} color="#4CAF50" />
-              <Text style={styles.balanceTitle}>Credit Owed</Text>
+              <Text style={styles.balanceTitle}>{t.credit_owed}</Text>
             </View>
             <Text style={styles.creditAmount}>${dashboardData.total_credit_owed.toFixed(2)}</Text>
-            <Text style={styles.balanceSubtitle}>Money owed to players</Text>
+            <Text style={styles.balanceSubtitle}>{t.money_owed_to_players}</Text>
           </View>
 
           <View style={styles.balanceCard}>
             <View style={styles.balanceHeader}>
               <Ionicons name="trending-down" size={24} color="#f44336" />
-              <Text style={styles.balanceTitle}>Debt Owed</Text>
+              <Text style={styles.balanceTitle}>{t.debt_owed}</Text>
             </View>
             <Text style={styles.debtAmount}>${dashboardData.total_debt_owed.toFixed(2)}</Text>
-            <Text style={styles.balanceSubtitle}>Money owed by players</Text>
+            <Text style={styles.balanceSubtitle}>{t.money_owed_by_players}</Text>
           </View>
         </View>
       )}
