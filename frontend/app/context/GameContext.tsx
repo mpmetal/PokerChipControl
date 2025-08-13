@@ -157,20 +157,34 @@ export default function GameProvider({ children }: GameProviderProps) {
   };
 
   const closeCurrentGame = async () => {
-    if (!currentGame) return;
+    if (!currentGame) {
+      console.log('No current game to close');
+      return;
+    }
+    
+    console.log('Attempting to close game:', currentGame.id);
     
     try {
       const response = await fetch(`${API_BASE_URL}/api/games/${currentGame.id}/close`, {
         method: 'POST',
       });
       
+      console.log('Close game response status:', response.status);
+      
       if (response.ok) {
+        const result = await response.json();
+        console.log('Game closed successfully:', result);
         setCurrentGameState(null);
         await fetchGames(); // Refresh games list
         await fetchPlayers(); // Refresh players to get updated balances
+      } else {
+        const errorText = await response.text();
+        console.error('Failed to close game:', response.status, errorText);
+        throw new Error(`Failed to close game: ${errorText}`);
       }
     } catch (error) {
       console.error('Error closing game:', error);
+      throw error; // Re-throw so the UI can handle it
     }
   };
 
