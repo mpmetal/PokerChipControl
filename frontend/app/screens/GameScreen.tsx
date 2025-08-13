@@ -713,4 +713,46 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  availablePlayersList: {
+    maxHeight: 300,
+    marginVertical: 16,
+  },
+  availablePlayerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#f9f9f9',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  availablePlayerInfo: {
+    flex: 1,
+  },
+  availablePlayerName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  availablePlayerBalance: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
+  },
+  noPlayersAvailable: {
+    alignItems: 'center',
+    padding: 32,
+  },
+  noPlayersText: {
+    fontSize: 16,
+    color: '#999',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  instruction: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
 });
