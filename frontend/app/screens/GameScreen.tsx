@@ -302,7 +302,7 @@ export default function GameScreen() {
                   {selectedTransactionType === 'cash' && 'Player buys chips with cash (no balance change)'}
                   {selectedTransactionType === 'bank_transfer' && 'Player buys chips via bank transfer (no balance change)'}
                   {selectedTransactionType === 'credit' && 'Player receives chips on credit (creates debt)'}
-                  {selectedTransactionType === 'cashed_out' && 'Convert positive balance to cash (balance becomes 0)'}
+                  {selectedTransactionType === 'cashed_out' && 'Player cashes out winnings (enter amount won)'}
                   {selectedTransactionType === 'paid_with_chips' && 'Player pays debt or creates credit with chips'}
                 </Text>
               </View>
