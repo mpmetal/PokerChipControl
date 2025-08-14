@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import React from 'react';
-import GameProvider from './context/GameContext';
-import LanguageProvider from './context/LanguageContext';
+import { GameProvider } from './context/GameContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 export default function RootLayout() {
   return (
