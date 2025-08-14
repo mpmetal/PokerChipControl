@@ -360,7 +360,7 @@ export default function GameScreen() {
                 style={styles.addButton}
                 onPress={submitTransaction}
               >
-                <Text style={styles.addButtonText}>Add Transaction</Text>
+                <Text style={styles.addButtonText}>ADD</Text>
               </TouchableOpacity>
             </View>
           </View>
