@@ -71,7 +71,7 @@ interface GameProviderProps {
   children: ReactNode;
 }
 
-export default function GameProvider({ children }: GameProviderProps) {
+export function GameProvider({ children }: GameProviderProps) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [games, setGames] = useState<Game[]>([]);
   const [currentGame, setCurrentGameState] = useState<Game | null>(null);
