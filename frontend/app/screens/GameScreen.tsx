@@ -228,6 +228,20 @@ export default function GameScreen() {
 
           return (
             <View key={player.id} style={styles.playerRow}>
+              {/* Player Photo */}
+              <View style={styles.playerPhotoContainer}>
+                {player.photo ? (
+                  <Image 
+                    source={{ uri: player.photo }} 
+                    style={styles.playerPhoto}
+                  />
+                ) : (
+                  <View style={styles.placeholderPhoto}>
+                    <MaterialIcons name="person" size={24} color="#999" />
+                  </View>
+                )}
+              </View>
+              
               <View style={styles.playerInfo}>
                 <Text style={styles.playerName}>{player.name}</Text>
                 <Text style={styles.startingBalance}>
