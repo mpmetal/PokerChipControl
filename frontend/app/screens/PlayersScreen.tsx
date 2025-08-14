@@ -438,6 +438,7 @@ export default function PlayersScreen() {
                   setEditingPlayer(null);
                   setEditPlayerName('');
                   setEditPlayerBalance('');
+                  setEditPlayerPhoto(null); // CRITICAL FIX: Reset photo state
                 }}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
