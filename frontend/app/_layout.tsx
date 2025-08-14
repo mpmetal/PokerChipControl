@@ -13,7 +13,6 @@ export default function RootLayout() {
           <Stack.Screen name="history" options={{ headerShown: false }} />
           <Stack.Screen name="players" options={{ headerShown: false }} />
           <Stack.Screen name="reports" options={{ headerShown: false }} />
-          <Stack.Screen name="subscription" options={{ headerShown: false }} />
         </Stack>
       </GameProvider>
     </LanguageProvider>
