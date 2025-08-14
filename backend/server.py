@@ -366,7 +366,7 @@ async def create_transaction(game_id: str, transaction_data: TransactionCreate):
         }}
     )
     
-    # Update chips_in_game for this specific game (if chips were added or removed)
+    # Update chips_in_game for this specific game 
     if total_played_change > 0:
         # Add chips to the game (Cash, Bank Transfer, Credit)
         await db.games.update_one(
@@ -375,6 +375,12 @@ async def create_transaction(game_id: str, transaction_data: TransactionCreate):
         )
     elif transaction_data.transaction_type == TransactionType.CASHED_OUT:
         # Remove chips from the game when player cashes out
+        await db.games.update_one(
+            {"id": game_id, "players.player_id": transaction_data.player_id},
+            {"$inc": {"players.$.chips_in_game": -transaction_data.amount}}
+        )
+    elif transaction_data.transaction_type == TransactionType.PAID_WITH_CHIPS:
+        # Remove chips from the game when player pays with chips (CRITICAL FIX)
         await db.games.update_one(
             {"id": game_id, "players.player_id": transaction_data.player_id},
             {"$inc": {"players.$.chips_in_game": -transaction_data.amount}}
