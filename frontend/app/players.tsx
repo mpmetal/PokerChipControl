@@ -1,7 +1,7 @@
 import React from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
 import PlayersScreen from './screens/PlayersScreen';
-import GameProvider from './context/GameContext';
+import { GameProvider } from './context/GameContext';
 
 export default function Players() {
   return (
