@@ -89,13 +89,7 @@ export default function PlayersScreen() {
     }
   };
 
-  const handleEditPlayer = (player: any) => {
-    setEditingPlayer(player);
-    setEditPlayerName(player.name);
-    setEditPlayerBalance(player.current_balance.toString());
-    setEditPlayerPhoto(player.photo || null);
-    setShowEditPlayer(true);
-  };
+  const handleEditPlayer = openEditPlayerModal;
 
   const handleUpdatePlayer = async () => {
     if (!editingPlayer || !editPlayerName.trim()) {
