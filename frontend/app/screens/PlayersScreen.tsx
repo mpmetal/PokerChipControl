@@ -32,6 +32,22 @@ export default function PlayersScreen() {
   const [showNewGame, setShowNewGame] = useState(false);
   const [gameName, setGameName] = useState('');
 
+  const openAddPlayerModal = () => {
+    // Reset all state when opening modal
+    setNewPlayerName('');
+    setNewPlayerPhoto(null);
+    setShowAddPlayer(true);
+  };
+
+  const openEditPlayerModal = (player: any) => {
+    // Reset and set proper state when opening edit modal
+    setEditingPlayer(player);
+    setEditPlayerName(player.name);
+    setEditPlayerBalance(player.current_balance.toString());
+    setEditPlayerPhoto(player.photo || null);
+    setShowEditPlayer(true);
+  };
+
   const pickImage = async (isEditing = false) => {
     // Request permission
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
