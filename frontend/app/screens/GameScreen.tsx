@@ -244,23 +244,23 @@ export default function GameScreen() {
               </View>
               
               <View style={styles.playerInfo}>
-                <Text style={styles.playerName}>{player.name}</Text>
-                <Text style={styles.startingBalance}>
-                  Started: {formatBalance(gamePlayer.starting_balance)}
-                </Text>
-                <Text style={styles.totalPlayed}>
-                  Chips in Game: ${formatMoney(gamePlayer.chips_in_game || 0)}
-                </Text>
+                <View style={styles.playerInfoRow}>
+                  <Text style={styles.playerName}>{player.name}</Text>
+                  <Text style={[styles.currentBalance, { color: getBalanceColor(player.current_balance) }]}>
+                    {formatBalance(player.current_balance)}
+                  </Text>
+                </View>
+                <View style={styles.playerStatsRow}>
+                  <Text style={styles.playerStat}>
+                    Started: {formatBalance(gamePlayer.starting_balance)}
+                  </Text>
+                  <Text style={styles.playerStat}>
+                    Chips: ${formatMoney(gamePlayer.chips_in_game || 0)}
+                  </Text>
+                </View>
               </View>
 
-              <View style={styles.currentBalanceContainer}>
-                <Text style={[styles.currentBalance, { color: getBalanceColor(player.current_balance) }]}>
-                  {formatBalance(player.current_balance)}
-                </Text>
-                <Text style={styles.balanceLabel}>
-                  {player.current_balance > 0 ? 'Credit' : player.current_balance < 0 ? 'Debt' : 'Even'}
-                </Text>
-              </View>
+              {/* Remove the separate balance container since it's now integrated */}
 
               <View style={styles.actionsContainer}>
                 {TRANSACTION_TYPES.map((type, index) => (
