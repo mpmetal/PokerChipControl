@@ -372,6 +372,7 @@ export default function PlayersScreen() {
                 onPress={() => {
                   setShowAddPlayer(false);
                   setNewPlayerName('');
+                  setNewPlayerPhoto(null); // CRITICAL FIX: Reset photo state
                 }}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
