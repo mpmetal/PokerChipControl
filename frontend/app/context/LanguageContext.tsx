@@ -208,7 +208,7 @@ interface LanguageProviderProps {
   children: ReactNode;
 }
 
-export default function LanguageProvider({ children }: LanguageProviderProps) {
+export function LanguageProvider({ children }: LanguageProviderProps) {
   const [language, setLanguageState] = useState<Language>('en');
 
   useEffect(() => {
