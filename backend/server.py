@@ -474,30 +474,59 @@ async def close_game(game_id: str):
 # Dashboard/Stats Routes
 @api_router.get("/dashboard")
 async def get_dashboard():
-    # Get active games count
-    active_games = await db.games.count_documents({"status": GameStatus.ACTIVE})
-    
-    # Get total players
-    total_players = await db.players.count_documents({})
-    
-    # Get players with positive balances (money owed to players)
-    players_with_credit = await db.players.find({"current_balance": {"$gt": 0}}).to_list(1000)
-    total_credit_owed = sum(player["current_balance"] for player in players_with_credit)
-    
-    # Get players with negative balances (money owed by players)  
-    players_with_debt = await db.players.find({"current_balance": {"$lt": 0}}).to_list(1000)
-    total_debt_owed = sum(abs(player["current_balance"]) for player in players_with_debt)
-    
-    # Get recent transactions
-    recent_transactions = await db.transactions.find().sort("timestamp", -1).limit(10).to_list(10)
-    
-    return {
-        "active_games": active_games,
-        "total_players": total_players,
-        "total_credit_owed": total_credit_owed,
-        "total_debt_owed": total_debt_owed,
-        "recent_transactions": [Transaction(**t) for t in recent_transactions]
-    }
+    """Get dashboard statistics including club earnings."""
+    try:
+        # Existing dashboard logic
+        active_games = await db.games.count_documents({"status": GameStatus.ACTIVE})
+        total_players = await db.players.count_documents({})
+        
+        # Calculate total credit owed (positive balances - money owed TO players)
+        total_credit_pipeline = [
+            {"$match": {"current_balance": {"$gt": 0}}},
+            {"$group": {"_id": None, "total": {"$sum": "$current_balance"}}}
+        ]
+        credit_result = await db.players.aggregate(total_credit_pipeline).to_list(1)
+        total_credit_owed = credit_result[0]["total"] if credit_result else 0
+        
+        # Calculate total debt owed (negative balances - money owed BY players)
+        total_debt_pipeline = [
+            {"$match": {"current_balance": {"$lt": 0}}},
+            {"$group": {"_id": None, "total": {"$sum": "$current_balance"}}}
+        ]
+        debt_result = await db.players.aggregate(total_debt_pipeline).to_list(1)
+        total_debt_owed = abs(debt_result[0]["total"]) if debt_result else 0
+        
+        # NEW: Calculate total club earnings from all closed games
+        club_earnings_pipeline = [
+            {"$match": {"status": GameStatus.CLOSED}},
+            {"$unwind": "$players"},
+            {"$group": {"_id": "$id", "total_chips_in_game": {"$sum": "$players.chips_in_game"}}},
+            {"$group": {"_id": None, "total_club_earnings": {"$sum": "$total_chips_in_game"}}}
+        ]
+        earnings_result = await db.games.aggregate(club_earnings_pipeline).to_list(1)
+        total_club_earnings = earnings_result[0]["total_club_earnings"] if earnings_result else 0
+        
+        # Get recent transactions (last 10)
+        recent_transactions = await db.transactions.find().sort("timestamp", -1).limit(10).to_list(10)
+        
+        return {
+            "active_games": active_games,
+            "total_players": total_players,
+            "total_credit_owed": total_credit_owed,
+            "total_debt_owed": total_debt_owed,
+            "total_club_earnings": total_club_earnings,  # NEW FIELD
+            "recent_transactions": [Transaction(**t) for t in recent_transactions]
+        }
+    except Exception as e:
+        logger.error(f"Dashboard error: {str(e)}")
+        return {
+            "active_games": 0,
+            "total_players": 0,
+            "total_credit_owed": 0.0,
+            "total_debt_owed": 0.0,
+            "total_club_earnings": 0.0,
+            "recent_transactions": []
+        }
 
 # Subscription utility functions
 def verify_webhook_signature(payload: bytes, signature: str) -> bool:
