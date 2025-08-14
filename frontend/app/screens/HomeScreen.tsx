@@ -346,6 +346,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#f44336',
   },
+  earningsAmount: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+  },
   balanceSubtitle: {
     fontSize: 12,
     color: '#666',
