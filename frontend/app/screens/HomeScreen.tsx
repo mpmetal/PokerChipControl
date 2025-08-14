@@ -93,30 +93,6 @@ export default function HomeScreen() {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      {/* Subscription Status/Button */}
-      {!isPremium ? (
-        <TouchableOpacity
-          style={styles.subscriptionButton}
-          onPress={() => router.push('/subscription')}
-        >
-          <MaterialIcons name="star" size={24} color="#FFD700" />
-          <Text style={styles.subscriptionButtonText}>
-            Hazte Premium - $2/mes
-          </Text>
-          <MaterialIcons name="arrow-forward" size={20} color="#007AFF" />
-        </TouchableOpacity>
-      ) : (
-        <View style={styles.premiumStatus}>
-          <MaterialIcons name="verified" size={24} color="#4CAF50" />
-          <Text style={styles.premiumText}>
-            {isTrialActive 
-              ? `Prueba gratis - ${daysRemaining} días restantes`
-              : `Premium activo - ${daysRemaining} días restantes`
-            }
-          </Text>
-        </View>
-      )}
-
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
