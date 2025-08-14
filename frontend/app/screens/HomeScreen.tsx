@@ -152,6 +152,16 @@ export default function HomeScreen() {
             <Text style={styles.debtAmount}>${formatMoney(dashboardData.total_debt_owed)}</Text>
             <Text style={styles.balanceSubtitle}>{t.money_owed_by_players}</Text>
           </View>
+
+          {/* NEW: Club Earnings Card */}
+          <View style={styles.balanceCard}>
+            <View style={styles.balanceHeader}>
+              <Ionicons name="trophy" size={24} color="#4CAF50" />
+              <Text style={styles.balanceTitle}>Club Earnings</Text>
+            </View>
+            <Text style={styles.earningsAmount}>${formatMoney(dashboardData.total_club_earnings)}</Text>
+            <Text style={styles.balanceSubtitle}>Total from closed games</Text>
+          </View>
         </View>
       )}
 
