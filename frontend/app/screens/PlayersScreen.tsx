@@ -191,7 +191,7 @@ export default function PlayersScreen() {
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Players</Text>
-        <TouchableOpacity onPress={() => setShowAddPlayer(true)}>
+        <TouchableOpacity onPress={openAddPlayerModal}>
           <Ionicons name="add" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
