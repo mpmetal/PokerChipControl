@@ -10,7 +10,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://pokerbankapp.preview.emergentagent.com/api"
+BASE_URL = "https://pokertable-app.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
 
 # Test data storage
