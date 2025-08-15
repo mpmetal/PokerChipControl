@@ -474,9 +474,9 @@ async def close_game(game_id: str):
 # Dashboard/Stats Routes
 @api_router.get("/dashboard")
 async def get_dashboard():
-    """Get dashboard statistics including club earnings."""
+    """Get dashboard statistics."""
     try:
-        # Existing dashboard logic
+        # Basic dashboard stats
         active_games = await db.games.count_documents({"status": GameStatus.ACTIVE})
         total_players = await db.players.count_documents({})
         
@@ -496,16 +496,6 @@ async def get_dashboard():
         debt_result = await db.players.aggregate(total_debt_pipeline).to_list(1)
         total_debt_owed = abs(debt_result[0]["total"]) if debt_result else 0
         
-        # NEW: Calculate total club earnings from all closed games
-        club_earnings_pipeline = [
-            {"$match": {"status": GameStatus.CLOSED}},
-            {"$unwind": "$players"},
-            {"$group": {"_id": "$id", "total_chips_in_game": {"$sum": "$players.chips_in_game"}}},
-            {"$group": {"_id": None, "total_club_earnings": {"$sum": "$total_chips_in_game"}}}
-        ]
-        earnings_result = await db.games.aggregate(club_earnings_pipeline).to_list(1)
-        total_club_earnings = earnings_result[0]["total_club_earnings"] if earnings_result else 0
-        
         # Get recent transactions (last 10)
         recent_transactions = await db.transactions.find().sort("timestamp", -1).limit(10).to_list(10)
         
@@ -514,7 +504,6 @@ async def get_dashboard():
             "total_players": total_players,
             "total_credit_owed": total_credit_owed,
             "total_debt_owed": total_debt_owed,
-            "total_club_earnings": total_club_earnings,  # NEW FIELD
             "recent_transactions": [Transaction(**t) for t in recent_transactions]
         }
     except Exception as e:
@@ -524,7 +513,6 @@ async def get_dashboard():
             "total_players": 0,
             "total_credit_owed": 0.0,
             "total_debt_owed": 0.0,
-            "total_club_earnings": 0.0,
             "recent_transactions": []
         }
 
