@@ -354,6 +354,15 @@ async def create_transaction(game_id: str, transaction_data: TransactionCreate):
         # Paid with chips - reduces debt or creates positive balance
         balance_change = transaction_data.amount
         total_played_change = 0.0
+    elif transaction_data.transaction_type == TransactionType.PAY_CREDIT:
+        # NEW: Pay off existing debt directly (not with chips)
+        if transaction_data.amount <= 0:
+            raise HTTPException(status_code=400, detail="Payment amount must be greater than 0")
+        if player["current_balance"] >= 0:
+            raise HTTPException(status_code=400, detail="Player has no debt to pay")
+        # Pay off debt (positive amount reduces negative balance)
+        balance_change = transaction_data.amount  # Positive amount reduces debt
+        total_played_change = 0.0
     
     # Update player balance and total played
     new_balance = player["current_balance"] + balance_change
