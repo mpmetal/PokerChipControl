@@ -145,14 +145,23 @@ export function GameProvider({ children }: GameProviderProps) {
 
   const deletePlayer = async (playerId: string) => {
     try {
+      console.log('GameContext deletePlayer called with ID:', playerId);
+      console.log('API_BASE_URL:', API_BASE_URL);
+      console.log('Full URL:', `${API_BASE_URL}/api/players/${playerId}`);
+      
       const response = await fetch(`${API_BASE_URL}/api/players/${playerId}`, {
         method: 'DELETE',
       });
       
+      console.log('Delete response status:', response.status);
+      console.log('Delete response ok:', response.ok);
+      
       if (response.ok) {
+        console.log('Delete successful, refreshing players');
         await fetchPlayers(); // Refresh players list
       } else {
         const errorText = await response.text();
+        console.error('Delete failed with error:', errorText);
         throw new Error(`Failed to delete player: ${errorText}`);
       }
     } catch (error) {
