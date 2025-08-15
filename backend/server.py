@@ -129,6 +129,7 @@ class TransactionType(str, Enum):
     CREDIT = "credit" 
     CASHED_OUT = "cashed_out"
     PAID_WITH_CHIPS = "paid_with_chips"
+    PAY_CREDIT = "pay_credit"  # NEW: Pay off existing debt
 
 class GameStatus(str, Enum):
     ACTIVE = "active"
