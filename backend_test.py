@@ -459,9 +459,9 @@ def test_pay_credit_with_bob():
         return False
 
 def test_club_earnings_after_pay_credit():
-    """Test that Club Earnings are updated correctly after PAY_CREDIT transactions"""
+    """Test that Club Earnings are NOT affected by PAY_CREDIT transactions (CORRECTED LOGIC)"""
     print("=" * 60)
-    print("8. TESTING CLUB EARNINGS AFTER PAY_CREDIT")
+    print("8. TESTING CLUB EARNINGS AFTER PAY_CREDIT (CORRECTED LOGIC)")
     print("=" * 60)
     
     try:
@@ -471,24 +471,16 @@ def test_club_earnings_after_pay_credit():
             dashboard_data = response.json()
             club_earnings = dashboard_data.get("club_earnings", 0.0)
             
-            # Expected: Original 2550.0 - Alice's 200.0 - Bob's debt payment
-            # We need to calculate Bob's exact debt payment
-            bob_debt_paid = 200.0  # Bob's original debt was -200.0
-            alice_debt_paid = 200.0
-            
-            expected_earnings = 2550.0 - alice_debt_paid - bob_debt_paid  # 2150.0
+            # CORRECTED LOGIC: PAY_CREDIT should NOT affect club earnings
+            # Expected: Original 2550.0 should remain unchanged by PAY_CREDIT
+            expected_earnings = 2550.0  # Should remain the same
             
             if abs(club_earnings - expected_earnings) < 0.01:
-                log_test("Club Earnings after PAY_CREDIT", True, f"Club earnings: ${club_earnings:.2f} (reduced by PAY_CREDIT transactions)")
+                log_test("Club Earnings unaffected by PAY_CREDIT", True, f"Club earnings: ${club_earnings:.2f} (UNCHANGED by PAY_CREDIT)")
                 return True
             else:
-                log_test("Club Earnings after PAY_CREDIT", False, f"Expected: ${expected_earnings:.2f}, Actual: ${club_earnings:.2f}")
-                # This might not be exact due to rounding, so let's check if it's reasonable
-                if club_earnings < 2550.0:  # Should be less than original
-                    log_test("Club Earnings reduced by PAY_CREDIT", True, f"Club earnings reduced from 2550.0 to ${club_earnings:.2f}")
-                    return True
-                else:
-                    return False
+                log_test("Club Earnings unaffected by PAY_CREDIT", False, f"Expected: ${expected_earnings:.2f}, Actual: ${club_earnings:.2f}")
+                return False
         else:
             log_test("Get dashboard after PAY_CREDIT", False, f"Status: {response.status_code}")
             return False
