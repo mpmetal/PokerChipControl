@@ -303,30 +303,33 @@ export default function GameScreen() {
                 )}
               </View>
               
-              <View style={styles.playerInfo}>
-                <View style={styles.playerNameRow}>
+              {/* Player Info and Balance */}
+              <View style={styles.playerInfoWithBalance}>
+                <View style={styles.playerInfoLeft}>
                   <Text style={styles.playerName}>{player.name}</Text>
                   {player.current_balance <= 0 && (
                     <Text style={styles.cashedOutLabel}>CASHED OUT</Text>
                   )}
+                  <Text style={styles.startingBalance}>
+                    Started: {formatBalance(gamePlayer.starting_balance)}
+                  </Text>
+                  <Text style={styles.totalPlayed}>
+                    Chips in Game: ${formatMoney(Math.max(0, gamePlayer.chips_in_game || 0))}
+                  </Text>
                 </View>
-                <Text style={styles.startingBalance}>
-                  Started: {formatBalance(gamePlayer.starting_balance)}
-                </Text>
-                <Text style={styles.totalPlayed}>
-                  Chips in Game: ${formatMoney(Math.max(0, gamePlayer.chips_in_game || 0))}
-                </Text>
+
+                {/* Player Balance/Debt on the right */}
+                <View style={styles.playerBalanceRight}>
+                  <Text style={[styles.currentBalance, { color: getBalanceColor(player.current_balance) }]}>
+                    {formatBalance(Math.abs(player.current_balance))}
+                  </Text>
+                  <Text style={styles.balanceLabel}>
+                    {player.current_balance > 0 ? 'Owed to Player' : player.current_balance < 0 ? 'Player Owes' : 'Even'}
+                  </Text>
+                </View>
               </View>
 
-              <View style={styles.currentBalanceContainer}>
-                <Text style={[styles.currentBalance, { color: getBalanceColor(player.current_balance) }]}>
-                  {formatBalance(player.current_balance)}
-                </Text>
-                <Text style={styles.balanceLabel}>
-                  {player.current_balance > 0 ? 'Credit' : player.current_balance < 0 ? 'Debt' : 'Even'}
-                </Text>
-              </View>
-
+              {/* Transaction Buttons */}
               <View style={styles.actionsContainer}>
                 {TRANSACTION_TYPES.map((type, index) => (
                   <TouchableOpacity
