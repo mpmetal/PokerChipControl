@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Comprehensive Backend API Test for Poker Chip Management System
-Focus on updated fixes: Money formatting, chips_in_game logic, transaction processing, and cashed out logic.
+PRIORITY FOCUS: Pay Credit Transaction Testing and Club Earnings Dashboard API
 """
 
 import requests
@@ -16,6 +16,7 @@ HEADERS = {"Content-Type": "application/json"}
 # Test data storage
 test_players = []
 test_game_id = None
+test_game_id_2 = None
 test_transactions = []
 
 def log_test(test_name, success, details=""):
