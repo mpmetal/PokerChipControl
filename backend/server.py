@@ -512,6 +512,13 @@ async def get_dashboard():
         debt_result = await db.players.aggregate(total_debt_pipeline).to_list(1)
         total_debt_owed = abs(debt_result[0]["total"]) if debt_result else 0
         
+        # Calculate Club Earnings (Total chips in all active games)
+        club_earnings = 0.0
+        active_games_list = await db.games.find({"status": GameStatus.ACTIVE}).to_list(1000)
+        for game in active_games_list:
+            for player in game.get("players", []):
+                club_earnings += player.get("chips_in_game", 0.0)
+        
         # Get recent transactions (last 10)
         recent_transactions = await db.transactions.find().sort("timestamp", -1).limit(10).to_list(10)
         
@@ -520,6 +527,7 @@ async def get_dashboard():
             "total_players": total_players,
             "total_credit_owed": total_credit_owed,
             "total_debt_owed": total_debt_owed,
+            "club_earnings": club_earnings,
             "recent_transactions": [Transaction(**t) for t in recent_transactions]
         }
     except Exception as e:
@@ -529,6 +537,7 @@ async def get_dashboard():
             "total_players": 0,
             "total_credit_owed": 0.0,
             "total_debt_owed": 0.0,
+            "club_earnings": 0.0,
             "recent_transactions": []
         }
 
