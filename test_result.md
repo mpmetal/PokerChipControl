@@ -333,6 +333,9 @@ frontend:
         - working: false
           agent: "user"
           comment: "USER REPORTED CRITICAL BUGS: 1) Player deletion not working despite visible delete buttons and confirmation dialog, 2) Photo editing in edit modal not showing existing player photo for modification."
+        - working: false
+          agent: "main"
+          comment: "DEBUGGING COMPLETED: Added debug logs to identify issues. Backend logs show DELETE requests with null/undefined player IDs, indicating frontend data issue. Added validation in handleDeletePlayer to check player.id exists before deletion. Added debug logs for photo editing modal to track photo state. Transaction interface updated to include 'pay_credit' type."
 
   - task: "Player Photo Edit Modal"
     implemented: true
