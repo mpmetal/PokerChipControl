@@ -656,10 +656,25 @@ const styles = StyleSheet.create({
   playerInfo: {
     marginBottom: 12,
   },
+  playerNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
   playerName: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
+  },
+  cashedOutLabel: {
+    fontSize: 10,
+    color: '#4CAF50',
+    fontWeight: 'bold',
+    backgroundColor: '#E8F5E8',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
   },
   playerInfoRow: {
     flexDirection: 'row',
