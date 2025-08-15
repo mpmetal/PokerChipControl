@@ -6,6 +6,7 @@ interface Player {
   name: string;
   current_balance: number;
   total_played: number;
+  photo?: string;
   created_date: string;
 }
 
