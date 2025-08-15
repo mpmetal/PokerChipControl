@@ -125,6 +125,9 @@ backend:
         - working: false
           agent: "main"
           comment: "FIXED: Removed PAY_CREDIT logic that incorrectly reduced chips_in_game. PAY_CREDIT now only reduces player debt without affecting Total Table. Needs retesting."
+        - working: false
+          agent: "main"
+          comment: "ADDITIONAL FIXES: 1) Added validation to prevent chips_in_game from going negative in CASHED_OUT and PAID_WITH_CHIPS. 2) Added Math.max(0, chips_in_game) in frontend display. 3) Added cash out validation in Close Game button. 4) Added visual indicators for players who have cashed out. Needs comprehensive retesting."
         - working: true
           agent: "testing"
           comment: "✅ CRITICAL BUG FIX VERIFIED: PAY_CREDIT correctly does NOT affect Total Table (chips_in_game). Comprehensive testing confirmed: 1) PAY_CREDIT reduces player debt (balance: -500→-300), 2) PAY_CREDIT does NOT affect chips_in_game (1000→1000 UNCHANGED), 3) PAY_CREDIT does NOT affect Total Table (1500→1500 UNCHANGED), 4) PAY_WITH_CHIPS DOES reduce Total Table as expected (1500→1400), 5) Comparison test confirms different behaviors. Bug fix successful - PAY_CREDIT is direct debt payment, not with table chips."
