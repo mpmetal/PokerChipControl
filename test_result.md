@@ -342,10 +342,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Money Format Fixes"
-    - "Chips in Game Logic"
-    - "Transaction Processing with Chips Tracking"
-    - "Cashed Out Logic"
+    - "Pay Credit Transaction Implementation"
+    - "Club Earnings Dashboard API"
+    - "Pay Credit Button Implementation"
+    - "Club Earnings HomeScreen Display"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
