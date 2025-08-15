@@ -132,7 +132,7 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {/* Balance Summary - Only Debt Owed */}
+      {/* Balance Summary - Debt Owed and Club Earnings */}
       {dashboardData && (
         <View style={styles.balanceContainer}>
           <View style={styles.balanceCard}>
@@ -142,6 +142,15 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.debtAmount}>${formatMoney(dashboardData.total_debt_owed)}</Text>
             <Text style={styles.balanceSubtitle}>{t.money_owed_by_players}</Text>
+          </View>
+          
+          <View style={styles.balanceCard}>
+            <View style={styles.balanceHeader}>
+              <Ionicons name="trending-up" size={24} color="#4CAF50" />
+              <Text style={styles.balanceTitle}>Club Earnings</Text>
+            </View>
+            <Text style={styles.earningsAmount}>${formatMoney(dashboardData.club_earnings)}</Text>
+            <Text style={styles.balanceSubtitle}>Total chips on table</Text>
           </View>
         </View>
       )}
