@@ -671,7 +671,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   playerInfo: {
-    marginBottom: 12,
+    marginBottom: 8,
   },
   playerNameRow: {
     flexDirection: 'row',
