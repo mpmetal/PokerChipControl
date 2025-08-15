@@ -321,15 +321,30 @@ frontend:
 
   - task: "Player Management Screen"
     implemented: true
-    working: "NA"
-    file: "frontend/app/screens/PlayersScreen.tsx"
-    stuck_count: 0
+    working: false
+    file: "/app/frontend/app/screens/PlayersScreen.tsx"
+    stuck_count: 1
     priority: "high"
     needs_retesting: true
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Player management with add new players, select players for games, and display current balances with color coding."
+        - working: false
+          agent: "user"
+          comment: "USER REPORTED CRITICAL BUGS: 1) Player deletion not working despite visible delete buttons and confirmation dialog, 2) Photo editing in edit modal not showing existing player photo for modification."
+
+  - task: "Player Photo Edit Modal"
+    implemented: true
+    working: false
+    file: "/app/frontend/app/screens/PlayersScreen.tsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "Edit player modal implemented with photo editing capability (lines 416-424), setEditPlayerPhoto should display existing player photo but user reports photo not appearing for modification."
 
   - task: "Active Game Screen"
     implemented: true
