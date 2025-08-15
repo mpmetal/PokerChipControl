@@ -105,6 +105,30 @@
 user_problem_statement: Build a mobile poker chip management app to track chip transactions, calculate player credit balances, and manage poker game sessions. Features include player management, game sessions, 5 transaction types (cash, bank transfer, credit, cashed out, paid with chips), balance calculations, session history, and export functionality.
 
 backend:
+  - task: "Pay Credit Transaction Implementation"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "Added PAY_CREDIT transaction type to enum and implemented logic in create_transaction function. PAY_CREDIT reduces player debt (positive balance change) and reduces chips_in_game to affect Total Table calculation. Needs testing."
+
+  - task: "Club Earnings Dashboard API"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "Added club_earnings calculation to dashboard endpoint. Club earnings calculated as sum of chips_in_game across all active games. Needs testing."
+
   - task: "MongoDB Models and API Setup"
     implemented: true
     working: true
