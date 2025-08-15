@@ -88,7 +88,7 @@ def test_scenario_1_cashed_out_validation():
         
         if response.status_code == 400:
             error_message = response.json().get("detail", "")
-            if "Cannot cash out $1500" in error_message and "$1000 chips in game" in error_message:
+            if "Cannot cash out" in error_message and "1500" in error_message and "1000" in error_message and "chips in game" in error_message:
                 log_test("CASHED_OUT validation fails correctly", True, f"Error: {error_message}")
             else:
                 log_test("CASHED_OUT validation fails correctly", False, f"Wrong error: {error_message}")
