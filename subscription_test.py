@@ -13,7 +13,7 @@ from datetime import datetime, timezone, timedelta
 from typing import Dict, Any
 
 # Configuration
-BASE_URL = "https://bd83fa23-2daa-4749-bca7-7274e99e8384.preview.emergentagent.com/api"
+BASE_URL = "https://gamebank-poker.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
 
 # Test data storage
