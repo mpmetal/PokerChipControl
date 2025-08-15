@@ -122,27 +122,35 @@ export default function PlayersScreen() {
   const handleDeletePlayer = async (player: any) => {
     // Check if player.id exists
     if (!player.id) {
-      Alert.alert('Error', 'Invalid player data. Cannot delete player.');
+      const errorMessage = 'Invalid player data. Cannot delete player.';
+      if (Platform.OS === 'web') {
+        window.alert(errorMessage);
+      } else {
+        Alert.alert('Error', errorMessage);
+      }
       return;
     }
     
-    // Use Alert.alert for both web and native for consistency
-    const confirmDelete = () => {
-      return new Promise<boolean>((resolve) => {
-        Alert.alert(
-          'Delete Player',
-          `Are you sure you want to delete ${player.name}?`,
-          [
-            { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
-            { text: 'Delete', style: 'destructive', onPress: () => resolve(true) }
-          ]
-        );
-      });
-    };
+    // Use platform-specific confirmation dialog
+    let confirmed = false;
     
     try {
       console.log('Starting delete process for player:', player.name, 'ID:', player.id);
-      const confirmed = await confirmDelete();
+      
+      if (Platform.OS === 'web') {
+        confirmed = window.confirm(`Are you sure you want to delete ${player.name}?`);
+      } else {
+        confirmed = await new Promise<boolean>((resolve) => {
+          Alert.alert(
+            'Delete Player',
+            `Are you sure you want to delete ${player.name}?`,
+            [
+              { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+              { text: 'Delete', style: 'destructive', onPress: () => resolve(true) }
+            ]
+          );
+        });
+      }
       
       console.log('User confirmation result:', confirmed);
       
@@ -161,10 +169,13 @@ export default function PlayersScreen() {
       
     } catch (error: any) {
       console.error('Delete player error:', error);
-      Alert.alert(
-        'Delete Failed', 
-        error.message || 'Failed to delete player. They may be in an active game.'
-      );
+      const errorMessage = error.message || 'Failed to delete player. They may be in an active game.';
+      
+      if (Platform.OS === 'web') {
+        window.alert(`Delete Failed: ${errorMessage}`);
+      } else {
+        Alert.alert('Delete Failed', errorMessage);
+      }
     }
   };
 
