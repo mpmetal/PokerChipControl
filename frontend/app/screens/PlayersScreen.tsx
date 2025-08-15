@@ -312,12 +312,12 @@ export default function PlayersScreen() {
               )}
             </TouchableOpacity>
 
-            {/* Action Buttons - Always Visible */}
+            {/* Action Buttons - Always Visible when not in game selection mode */}
             {!showNewGame && (
               <View style={styles.playerActions}>
                 <TouchableOpacity 
                   style={styles.editButton}
-                  onPress={() => handleEditPlayer(player)}
+                  onPress={() => openEditPlayerModal(player)}
                 >
                   <Ionicons name="pencil" size={16} color="#1976D2" />
                   <Text style={styles.editButtonText}>Edit</Text>
