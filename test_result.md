@@ -131,6 +131,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ CRITICAL BUG FIX VERIFIED: PAY_CREDIT correctly does NOT affect Total Table (chips_in_game). Comprehensive testing confirmed: 1) PAY_CREDIT reduces player debt (balance: -500→-300), 2) PAY_CREDIT does NOT affect chips_in_game (1000→1000 UNCHANGED), 3) PAY_CREDIT does NOT affect Total Table (1500→1500 UNCHANGED), 4) PAY_WITH_CHIPS DOES reduce Total Table as expected (1500→1400), 5) Comparison test confirms different behaviors. Bug fix successful - PAY_CREDIT is direct debt payment, not with table chips."
+        - working: true
+          agent: "testing"
+          comment: "✅ MULTIPLE BUG FIXES COMPREHENSIVELY TESTED: 1) PAY_CREDIT still correctly does NOT affect chips_in_game (verified: $500→$500 UNCHANGED), 2) NEW CRITICAL VALIDATION WORKING: CASHED_OUT validation prevents negative chips_in_game (error: 'Cannot cash out $1500. Player only has $1000 chips in game'), 3) PAID_WITH_CHIPS validation prevents negative chips_in_game (error: 'Cannot pay $1000 with chips. Player only has $800 chips in game'), 4) Valid transactions still work correctly (CASHED_OUT $500 succeeds, PAID_WITH_CHIPS $300 succeeds), 5) Edge case verified: chips_in_game can be exactly $0.00 without going negative, 6) All players maintain chips_in_game >= 0 after all transactions. All validation bug fixes are production-ready."
 
   - task: "Club Earnings Dashboard API"
     implemented: true
