@@ -445,15 +445,18 @@ backend:
   
   - task: "Player Delete API"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: false
           agent: "main"
           comment: "DELETE /api/players/{player_id} endpoint exists in backend (lines 248-260) with proper validation to prevent deletion of players in active games. Need to test if backend API is actually working."
+        - working: true
+          agent: "testing"
+          comment: "✅ COMPREHENSIVE DELETE API TESTING COMPLETED: All 9/9 tests passed. DELETE /api/players/{player_id} is working correctly: 1) Successfully deletes players NOT in active games, 2) Properly prevents deletion of players IN active games with error 'Cannot delete player who is in an active game', 3) Allows deletion after games are closed, 4) Returns proper 404 for invalid player IDs, 5) All CRUD operations (GET, POST, PUT, DELETE) working correctly. Backend API is fully functional - user issue 'No puedo borrar jugadores' is likely a FRONTEND implementation problem, not backend."
 
   - task: "Game Management API"
     implemented: true
