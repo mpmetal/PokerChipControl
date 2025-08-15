@@ -336,6 +336,9 @@ frontend:
         - working: false
           agent: "main"
           comment: "DEBUGGING COMPLETED: Added debug logs to identify issues. Backend logs show DELETE requests with null/undefined player IDs, indicating frontend data issue. Added validation in handleDeletePlayer to check player.id exists before deletion. Added debug logs for photo editing modal to track photo state. Transaction interface updated to include 'pay_credit' type."
+        - working: false
+          agent: "main"
+          comment: "INVESTIGATING: Code review shows proper implementation with debug logs and validation. Backend DELETE API confirmed working. Creating test player to reproduce and identify exact issue location. Focus on null/undefined player ID issue and photo display in edit modal."
 
   - task: "Player Photo Edit Modal"
     implemented: true
