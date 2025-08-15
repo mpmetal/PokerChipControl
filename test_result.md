@@ -405,8 +405,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Cash Out Status Indicators Testing"
-    - "Close Game Validation Testing"
+    - "Player Deletion Functionality Testing - COMPLETED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
