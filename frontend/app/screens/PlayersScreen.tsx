@@ -40,11 +40,20 @@ export default function PlayersScreen() {
   };
 
   const openEditPlayerModal = (player: any) => {
+    // Debug logs to check player data and photo
+    console.log('Opening edit modal for player:', player);
+    console.log('Player photo:', player.photo);
+    console.log('Player photo exists:', !!player.photo);
+    
     // Reset and set proper state when opening edit modal
     setEditingPlayer(player);
     setEditPlayerName(player.name);
     setEditPlayerBalance(player.current_balance.toString());
     setEditPlayerPhoto(player.photo || null);
+    
+    // Debug log to check what was set
+    console.log('Set editPlayerPhoto to:', player.photo || null);
+    
     setShowEditPlayer(true);
   };
 
