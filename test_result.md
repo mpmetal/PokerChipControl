@@ -415,15 +415,30 @@ user_problem_statement: "Test the poker chip management backend API with compreh
 backend:
   - task: "Player Management API"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         - working: true
           agent: "testing"
           comment: "✅ All player management endpoints working correctly. Successfully tested: create players (Alice, Bob, Charlie), get all players, update player balances. Players created with proper UUIDs and balance updates work as expected."
+        - working: false
+          agent: "user"
+          comment: "USER REPORTED CRITICAL BUG: 'No puedo borrar jugadores' (Cannot delete players). Despite DELETE endpoint implementation, players are not being deleted from the frontend."
+  
+  - task: "Player Delete API"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "DELETE /api/players/{player_id} endpoint exists in backend (lines 248-260) with proper validation to prevent deletion of players in active games. Need to test if backend API is actually working."
 
   - task: "Game Management API"
     implemented: true
