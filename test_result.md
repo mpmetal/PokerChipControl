@@ -122,15 +122,18 @@ backend:
 
   - task: "Club Earnings Dashboard API"
     implemented: true
-    working: false
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: false
           agent: "main"
           comment: "Added club_earnings calculation to dashboard endpoint. Club earnings calculated as sum of chips_in_game across all active games. Needs testing."
+        - working: true
+          agent: "testing"
+          comment: "✅ Club Earnings Dashboard API fully tested and working correctly. Dashboard endpoint now includes club_earnings field that accurately calculates the sum of chips_in_game across all active games. Verified with multiple active games and confirmed proper aggregation. All existing dashboard fields remain functional."
 
   - task: "MongoDB Models and API Setup"
     implemented: true
