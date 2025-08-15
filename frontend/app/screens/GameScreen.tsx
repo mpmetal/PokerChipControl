@@ -611,14 +611,28 @@ const styles = StyleSheet.create({
   playerRow: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    padding: 12,
+    marginBottom: 4,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     gap: 12,
+  },
+  playerInfoWithBalance: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginLeft: 12,
+  },
+  playerInfoLeft: {
+    flex: 1,
+  },
+  playerBalanceRight: {
+    alignItems: 'flex-end',
+    minWidth: 100,
+    marginLeft: 8,
   },
   playerPhotoContainer: {
     width: 50,
