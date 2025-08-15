@@ -126,37 +126,38 @@ export default function PlayersScreen() {
       return;
     }
     
-    // Platform-specific confirmation dialog
+    // Use Alert.alert for both web and native for consistency
     const confirmDelete = () => {
       return new Promise<boolean>((resolve) => {
-        if (Platform.OS === 'web') {
-          resolve(window.confirm(`Are you sure you want to delete ${player.name}?`));
-        } else {
-          Alert.alert(
-            'Delete Player',
-            `Are you sure you want to delete ${player.name}?`,
-            [
-              { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
-              { text: 'Delete', style: 'destructive', onPress: () => resolve(true) }
-            ]
-          );
-        }
+        Alert.alert(
+          'Delete Player',
+          `Are you sure you want to delete ${player.name}?`,
+          [
+            { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+            { text: 'Delete', style: 'destructive', onPress: () => resolve(true) }
+          ]
+        );
       });
     };
     
     try {
+      console.log('Starting delete process for player:', player.name, 'ID:', player.id);
       const confirmed = await confirmDelete();
       
+      console.log('User confirmation result:', confirmed);
+      
       if (!confirmed) {
+        console.log('User cancelled deletion');
         return; // User cancelled
       }
       
-      console.log('Deleting player with ID:', player.id);
+      console.log('Proceeding with deletion...');
       await deletePlayer(player.id);
-      console.log('Player deleted successfully');
+      console.log('Delete API call completed successfully');
       
-      // Refresh the player list using the correct function
+      // Refresh the player list
       await fetchPlayers();
+      console.log('Player list refreshed');
       
     } catch (error: any) {
       console.error('Delete player error:', error);
