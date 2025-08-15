@@ -30,7 +30,7 @@ interface Transaction {
   game_id: string;
   player_id: string;
   player_name: string;
-  transaction_type: 'cash' | 'bank_transfer' | 'credit' | 'cashed_out' | 'paid_with_chips';
+  transaction_type: 'cash' | 'bank_transfer' | 'credit' | 'cashed_out' | 'paid_with_chips' | 'pay_credit';
   amount: number;
   description?: string;
   timestamp: string;
