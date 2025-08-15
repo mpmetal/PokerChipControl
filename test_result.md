@@ -238,6 +238,30 @@ backend:
           comment: "✅ Cashed out logic working correctly. Cashed out transactions properly SUBTRACT from chips_in_game for specific games. Tested: Alice cashout $300 (1,000.0→700.0), then $200 (700.0→500.0). Amount correctly subtracted from player's chips in that specific game."
 
 frontend:
+  - task: "Pay Credit Button Implementation"
+    implemented: true
+    working: false
+    file: "/app/frontend/app/screens/GameScreen.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "Added Pay Credit button to TRANSACTION_TYPES array and implemented frontend logic with validation. Added MaterialIcons import and description for Pay Credit transaction type. Needs testing."
+
+  - task: "Club Earnings HomeScreen Display"
+    implemented: true
+    working: false
+    file: "/app/frontend/app/screens/HomeScreen.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "Added Club Earnings card to HomeScreen balance summary alongside Debt Owed card. Updated DashboardData interface to include club_earnings field. Needs testing."
+
   - task: "Mobile App Navigation Structure"
     implemented: true
     working: "NA"
