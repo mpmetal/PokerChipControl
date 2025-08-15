@@ -302,9 +302,9 @@ def test_pay_credit_validation():
         return False
 
 def test_pay_credit_functionality():
-    """Test PAY_CREDIT transaction functionality"""
+    """Test PAY_CREDIT transaction functionality - CORRECTED LOGIC"""
     print("=" * 60)
-    print("6. TESTING PAY_CREDIT FUNCTIONALITY")
+    print("6. TESTING PAY_CREDIT FUNCTIONALITY (CORRECTED LOGIC)")
     print("=" * 60)
     
     # Get Alice's current balance (should be negative - debt)
@@ -370,7 +370,7 @@ def test_pay_credit_functionality():
                 log_test("Get Alice's updated balance", False, f"Status: {response.status_code}")
                 return False
             
-            # Verify chips_in_game decreased (Total Table affected)
+            # CRITICAL TEST: Verify chips_in_game UNCHANGED (Total Table NOT affected)
             response = requests.get(f"{BASE_URL}/games/{test_game_id}", headers=HEADERS)
             if response.status_code == 200:
                 game_after = response.json()
@@ -378,13 +378,13 @@ def test_pay_credit_functionality():
                 
                 if alice_game_info_after:
                     final_chips_in_game = alice_game_info_after.get('chips_in_game', 0.0)
-                    expected_chips = initial_chips_in_game - pay_amount  # Should decrease
                     
-                    if abs(final_chips_in_game - expected_chips) < 0.01:
-                        log_test("PAY_CREDIT reduces Total Table", True, f"chips_in_game: ${initial_chips_in_game:.2f} → ${final_chips_in_game:.2f}")
+                    # CORRECTED LOGIC: PAY_CREDIT should NOT affect chips_in_game
+                    if abs(final_chips_in_game - initial_chips_in_game) < 0.01:
+                        log_test("PAY_CREDIT does NOT affect Total Table", True, f"chips_in_game: ${initial_chips_in_game:.2f} → ${final_chips_in_game:.2f} (UNCHANGED)")
                         return True
                     else:
-                        log_test("PAY_CREDIT reduces Total Table", False, f"Expected: ${expected_chips:.2f}, Actual: ${final_chips_in_game:.2f}")
+                        log_test("PAY_CREDIT does NOT affect Total Table", False, f"Expected: ${initial_chips_in_game:.2f}, Actual: ${final_chips_in_game:.2f} (SHOULD BE UNCHANGED)")
                         return False
                 else:
                     log_test("Find Alice in updated game", False, "Alice not found in updated game")
