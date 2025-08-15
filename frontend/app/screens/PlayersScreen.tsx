@@ -834,4 +834,40 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  photoSelectionContainer: {
+    marginBottom: 16,
+  },
+  photoLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  photoButton: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#1976D2',
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginBottom: 8,
+  },
+  photoPreview: {
+    width: 96,
+    height: 96,
+    borderRadius: 6,
+  },
+  photoPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  photoButtonText: {
+    fontSize: 12,
+    color: '#1976D2',
+    marginTop: 4,
+    textAlign: 'center',
+  },
 });
