@@ -385,12 +385,28 @@ async def create_transaction(game_id: str, transaction_data: TransactionCreate):
         )
     elif transaction_data.transaction_type == TransactionType.CASHED_OUT:
         # Remove chips from the game when player cashes out
+        # First check current chips_in_game to avoid negatives
+        current_game = await db.games.find_one({"id": game_id})
+        player_in_game = next((p for p in current_game["players"] if p["player_id"] == transaction_data.player_id), None)
+        current_chips = player_in_game.get("chips_in_game", 0.0) if player_in_game else 0.0
+        
+        if transaction_data.amount > current_chips:
+            raise HTTPException(status_code=400, detail=f"Cannot cash out ${transaction_data.amount}. Player only has ${current_chips} chips in game.")
+        
         await db.games.update_one(
             {"id": game_id, "players.player_id": transaction_data.player_id},
             {"$inc": {"players.$.chips_in_game": -transaction_data.amount}}
         )
     elif transaction_data.transaction_type == TransactionType.PAID_WITH_CHIPS:
-        # Remove chips from the game when player pays with chips (CRITICAL FIX)
+        # Remove chips from the game when player pays with chips
+        # First check current chips_in_game to avoid negatives
+        current_game = await db.games.find_one({"id": game_id})
+        player_in_game = next((p for p in current_game["players"] if p["player_id"] == transaction_data.player_id), None)
+        current_chips = player_in_game.get("chips_in_game", 0.0) if player_in_game else 0.0
+        
+        if transaction_data.amount > current_chips:
+            raise HTTPException(status_code=400, detail=f"Cannot pay ${transaction_data.amount} with chips. Player only has ${current_chips} chips in game.")
+        
         await db.games.update_one(
             {"id": game_id, "players.player_id": transaction_data.player_id},
             {"$inc": {"players.$.chips_in_game": -transaction_data.amount}}
