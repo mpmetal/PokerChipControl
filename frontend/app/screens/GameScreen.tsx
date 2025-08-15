@@ -22,6 +22,7 @@ const TRANSACTION_TYPES = [
   { key: 'credit', label: 'Credit', icon: 'trending-down', color: '#FF9800' },
   { key: 'cashed_out', label: 'Cashed Out', icon: 'trending-up', color: '#9C27B0' },
   { key: 'paid_with_chips', label: 'Paid with Chips', icon: 'swap-horizontal', color: '#607D8B' },
+  { key: 'pay_credit', label: 'Pay Credit', icon: 'remove-circle', color: '#E91E63' },
 ];
 
 export default function GameScreen() {
