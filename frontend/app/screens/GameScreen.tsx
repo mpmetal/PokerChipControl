@@ -83,6 +83,39 @@ export default function GameScreen() {
         });
         if (!confirmed) return;
       }
+    } else if (selectedTransactionType === 'pay_credit') {
+      // For pay credit, validate amount and check if player has debt to pay
+      if (!amount || parseFloat(amount) <= 0) {
+        Alert.alert('Error', 'Please enter a valid payment amount.');
+        return;
+      }
+      
+      if (selectedPlayer.current_balance >= 0) {
+        Alert.alert('Error', 'This player has no debt to pay. Current balance is not negative.');
+        return;
+      }
+      
+      transactionAmount = parseFloat(amount);
+      const debt = Math.abs(selectedPlayer.current_balance);
+      
+      if (transactionAmount > debt) {
+        Alert.alert('Error', `Payment amount ($${transactionAmount.toFixed(2)}) cannot exceed current debt ($${debt.toFixed(2)}).`);
+        return;
+      }
+      
+      // Show confirmation for payment
+      const newBalance = selectedPlayer.current_balance + transactionAmount;
+      const confirmed = await new Promise((resolve) => {
+        Alert.alert(
+          'Confirm Credit Payment',
+          `Player will pay $${transactionAmount.toFixed(2)} to reduce their debt.\nCurrent debt: $${debt.toFixed(2)}\nRemaining debt after payment: $${Math.abs(newBalance).toFixed(2)}${newBalance >= 0 ? ' (Paid in full)' : ''}`,
+          [
+            { text: 'Cancel', onPress: () => resolve(false) },
+            { text: 'Confirm Payment', onPress: () => resolve(true) }
+          ]
+        );
+      });
+      if (!confirmed) return;
     } else {
       // For other transactions, require amount
       if (!amount || parseFloat(amount) <= 0) {
