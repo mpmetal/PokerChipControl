@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Comprehensive Backend API Test for Poker Chip Management System
-PRIORITY FOCUS: Pay Credit Transaction Testing and Club Earnings Dashboard API
+CRITICAL BUG FIX VERIFICATION: PAY_CREDIT should NOT affect Total Table (chips_in_game)
+CORRECTED LOGIC: PAY_CREDIT only reduces player debt, does NOT reduce chips_in_game
 """
 
 import requests
