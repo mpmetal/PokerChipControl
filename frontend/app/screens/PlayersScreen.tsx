@@ -120,30 +120,50 @@ export default function PlayersScreen() {
   };
 
   const handleDeletePlayer = async (player: any) => {
-    // Debug log to check player data
-    console.log('Attempting to delete player:', player);
-    console.log('Player ID:', player.id);
-    
     // Check if player.id exists
     if (!player.id) {
-      console.error('Invalid player data. Cannot delete player.');
+      Alert.alert('Error', 'Invalid player data. Cannot delete player.');
       return;
     }
     
-    console.log('About to perform deletion directly');
+    // Platform-specific confirmation dialog
+    const confirmDelete = () => {
+      return new Promise<boolean>((resolve) => {
+        if (Platform.OS === 'web') {
+          resolve(window.confirm(`Are you sure you want to delete ${player.name}?`));
+        } else {
+          Alert.alert(
+            'Delete Player',
+            `Are you sure you want to delete ${player.name}?`,
+            [
+              { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+              { text: 'Delete', style: 'destructive', onPress: () => resolve(true) }
+            ]
+          );
+        }
+      });
+    };
     
     try {
-      console.log('Calling deletePlayer with ID:', player.id);
+      const confirmed = await confirmDelete();
+      
+      if (!confirmed) {
+        return; // User cancelled
+      }
+      
+      console.log('Deleting player with ID:', player.id);
       await deletePlayer(player.id);
       console.log('Player deleted successfully');
       
-      // Refresh the player list
-      await loadPlayers();
-      console.log('Player list refreshed');
+      // Refresh the player list using the correct function
+      await fetchPlayers();
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Delete player error:', error);
-      console.log('Failed to delete player. They may be in an active game.');
+      Alert.alert(
+        'Delete Failed', 
+        error.message || 'Failed to delete player. They may be in an active game.'
+      );
     }
   };
 
