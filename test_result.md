@@ -339,6 +339,9 @@ frontend:
         - working: false
           agent: "main"
           comment: "INVESTIGATING: Code review shows proper implementation with debug logs and validation. Backend DELETE API confirmed working. Creating test player to reproduce and identify exact issue location. Focus on null/undefined player ID issue and photo display in edit modal."
+        - working: false
+          agent: "main"
+          comment: "CRITICAL BUG FIXED: Found and fixed the root cause - handleDeletePlayer was calling undefined function loadPlayers() instead of fetchPlayers(). Also restored proper confirmation dialog using Platform.select for web/native compatibility. Added proper error handling with Alert dialogs. This should completely resolve the player deletion issue."
 
   - task: "Player Photo Edit Modal"
     implemented: true
