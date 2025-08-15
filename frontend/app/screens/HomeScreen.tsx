@@ -19,6 +19,7 @@ interface DashboardData {
   total_players: number;
   total_credit_owed: number;
   total_debt_owed: number;
+  club_earnings: number;
   recent_transactions: any[];
 }
 
