@@ -130,27 +130,25 @@ export default function PlayersScreen() {
       return;
     }
     
-    Alert.alert(
-      'Delete Player',
-      `Are you sure you want to delete ${player.name}? This action cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              console.log('Calling deletePlayer with ID:', player.id);
-              await deletePlayer(player.id);
-              console.log('Player deleted successfully');
-            } catch (error) {
-              console.error('Delete player error:', error);
-              Alert.alert('Error', 'Failed to delete player. They may be in an active game.');
-            }
-          }
+    // Use window.confirm for web compatibility
+    const confirmed = window.confirm(`Are you sure you want to delete ${player.name}? This action cannot be undone.`);
+    
+    if (confirmed) {
+      console.log('User confirmed deletion');
+      const performDelete = async () => {
+        try {
+          console.log('Calling deletePlayer with ID:', player.id);
+          await deletePlayer(player.id);
+          console.log('Player deleted successfully');
+        } catch (error) {
+          console.error('Delete player error:', error);
+          Alert.alert('Error', 'Failed to delete player. They may be in an active game.');
         }
-      ]
-    );
+      };
+      performDelete();
+    } else {
+      console.log('User cancelled deletion');
+    }
   };
 
   const togglePlayerSelection = (playerId: string) => {
