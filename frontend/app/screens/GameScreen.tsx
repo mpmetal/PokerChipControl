@@ -91,7 +91,7 @@ export default function GameScreen() {
       }
       
       if (selectedPlayer.current_balance >= 0) {
-        Alert.alert('Error', 'This player has no debt to pay. Current balance is not negative.');
+        Alert.alert('Error', 'This player has no debt to pay. Player does not owe money.');
         return;
       }
       
