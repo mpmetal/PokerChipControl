@@ -295,10 +295,21 @@ export default function GameScreen() {
                     <MaterialIcons name="person" size={24} color="#999" />
                   </View>
                 )}
+                {/* Cash Out Status Indicator */}
+                {player.current_balance <= 0 && (
+                  <View style={styles.cashedOutIndicator}>
+                    <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
+                  </View>
+                )}
               </View>
               
               <View style={styles.playerInfo}>
-                <Text style={styles.playerName}>{player.name}</Text>
+                <View style={styles.playerNameRow}>
+                  <Text style={styles.playerName}>{player.name}</Text>
+                  {player.current_balance <= 0 && (
+                    <Text style={styles.cashedOutLabel}>CASHED OUT</Text>
+                  )}
+                </View>
                 <Text style={styles.startingBalance}>
                   Started: {formatBalance(gamePlayer.starting_balance)}
                 </Text>
