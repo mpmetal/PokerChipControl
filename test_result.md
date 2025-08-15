@@ -107,11 +107,11 @@ user_problem_statement: Build a mobile poker chip management app to track chip t
 backend:
   - task: "Pay Credit Transaction Implementation"
     implemented: true
-    working: true
+    working: false
     file: "/app/backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         - working: false
           agent: "main"
@@ -119,6 +119,12 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ PAY_CREDIT transaction implementation fully tested and working correctly. Validation properly rejects players with no debt (balance >= 0). PAY_CREDIT successfully reduces player debt and decreases Total Table (chips_in_game). Tested with multiple scenarios: debt reduction, full debt payment, and proper error handling for invalid attempts."
+        - working: false
+          agent: "user"
+          comment: "USER REPORTED BUG: PAY_CREDIT should NOT reduce Total Table. Only CASH OUT and PAY WITH CHIPS should reduce Total Table. PAY_CREDIT is direct debt payment, not with chips from table."
+        - working: false
+          agent: "main"
+          comment: "FIXED: Removed PAY_CREDIT logic that incorrectly reduced chips_in_game. PAY_CREDIT now only reduces player debt without affecting Total Table. Needs retesting."
 
   - task: "Club Earnings Dashboard API"
     implemented: true
