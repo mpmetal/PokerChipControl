@@ -395,12 +395,7 @@ async def create_transaction(game_id: str, transaction_data: TransactionCreate):
             {"id": game_id, "players.player_id": transaction_data.player_id},
             {"$inc": {"players.$.chips_in_game": -transaction_data.amount}}
         )
-    elif transaction_data.transaction_type == TransactionType.PAY_CREDIT:
-        # Remove from total table when player pays debt (reduces overall table total)
-        await db.games.update_one(
-            {"id": game_id, "players.player_id": transaction_data.player_id},
-            {"$inc": {"players.$.chips_in_game": -transaction_data.amount}}
-        )
+    # PAY_CREDIT does NOT affect chips_in_game (Total Table) - it's direct debt payment, not with chips
     
     # Save transaction
     await db.transactions.insert_one(transaction.dict())
