@@ -382,6 +382,8 @@ agent_communication:
       message: "BUG FIXED: User reported that PAY_CREDIT should NOT reduce Total Table. Corrected backend logic - PAY_CREDIT now only reduces player debt without affecting chips_in_game (Total Table). Only CASH OUT and PAY WITH CHIPS should reduce Total Table. PAY_CREDIT is direct debt payment, not with table chips. Ready for retesting."
     - agent: "testing"
       message: "PAY CREDIT & CLUB EARNINGS TESTING COMPLETED: ✅ PAY_CREDIT transaction implementation fully tested and working correctly. Validation properly rejects players with no debt. PAY_CREDIT successfully reduces player debt and decreases Total Table. ✅ Club Earnings Dashboard API working correctly with accurate calculation across all active games. ✅ Total Table logic verified: Cash + Bank Transfer + Credit - Cashed Out - Paid with Chips - Pay Credit. Both priority features are production-ready."
+    - agent: "testing"
+      message: "✅ CRITICAL BUG FIX VERIFIED: PAY_CREDIT correctly does NOT affect Total Table (chips_in_game). Comprehensive testing confirmed: 1) PAY_CREDIT reduces player debt (balance: -500→-300), 2) PAY_CREDIT does NOT affect chips_in_game (1000→1000 UNCHANGED), 3) PAY_CREDIT does NOT affect Total Table (1500→1500 UNCHANGED), 4) PAY_WITH_CHIPS DOES reduce Total Table as expected (1500→1400), 5) Comparison test confirms different behaviors. Bug fix successful - PAY_CREDIT is direct debt payment, not with table chips."
 
 user_problem_statement: "Test the poker chip management backend API with comprehensive testing of player management, game management, transaction management, game closing, and dashboard endpoints"
 
