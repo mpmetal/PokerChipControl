@@ -12,7 +12,7 @@ import json
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://gamebank-poker.preview.emergentagent.com/api"
+BASE_URL = "https://chip-manager-app.preview.emergentagent.com/api"
 HEADERS = {"Content-Type": "application/json"}
 
 def log_test(test_name, success, details=""):
