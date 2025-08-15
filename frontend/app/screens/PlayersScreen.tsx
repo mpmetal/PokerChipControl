@@ -130,24 +130,70 @@ export default function PlayersScreen() {
       return;
     }
     
-    // Use window.confirm for web compatibility
-    const confirmed = window.confirm(`Are you sure you want to delete ${player.name}? This action cannot be undone.`);
+    console.log('About to show confirmation dialog');
     
-    if (confirmed) {
-      console.log('User confirmed deletion');
-      const performDelete = async () => {
-        try {
-          console.log('Calling deletePlayer with ID:', player.id);
-          await deletePlayer(player.id);
-          console.log('Player deleted successfully');
-        } catch (error) {
-          console.error('Delete player error:', error);
-          Alert.alert('Error', 'Failed to delete player. They may be in an active game.');
+    // Use a combination approach for better compatibility
+    try {
+      // First try native Alert
+      Alert.alert(
+        'Delete Player',
+        `Are you sure you want to delete ${player.name}? This action cannot be undone.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: async () => {
+              console.log('User confirmed deletion via Alert');
+              try {
+                console.log('Calling deletePlayer with ID:', player.id);
+                await deletePlayer(player.id);
+                console.log('Player deleted successfully');
+              } catch (error) {
+                console.error('Delete player error:', error);
+                Alert.alert('Error', 'Failed to delete player. They may be in an active game.');
+              }
+            }
+          }
+        ]
+      );
+    } catch (alertError) {
+      console.log('Alert failed, trying window.confirm:', alertError);
+      // Fallback to window.confirm if Alert fails
+      if (typeof window !== 'undefined' && window.confirm) {
+        const confirmed = window.confirm(`Are you sure you want to delete ${player.name}? This action cannot be undone.`);
+        
+        if (confirmed) {
+          console.log('User confirmed deletion via window.confirm');
+          const performDelete = async () => {
+            try {
+              console.log('Calling deletePlayer with ID:', player.id);
+              await deletePlayer(player.id);
+              console.log('Player deleted successfully');
+            } catch (error) {
+              console.error('Delete player error:', error);
+              console.log('Failed to delete player. They may be in an active game.');
+            }
+          };
+          performDelete();
+        } else {
+          console.log('User cancelled deletion');
         }
-      };
-      performDelete();
-    } else {
-      console.log('User cancelled deletion');
+      } else {
+        // Direct delete without confirmation as last resort (for debugging)
+        console.log('No confirmation dialog available, performing direct delete for debugging');
+        const performDelete = async () => {
+          try {
+            console.log('Calling deletePlayer with ID:', player.id);
+            await deletePlayer(player.id);
+            console.log('Player deleted successfully');
+          } catch (error) {
+            console.error('Delete player error:', error);
+            console.log('Failed to delete player. They may be in an active game.');
+          }
+        };
+        performDelete();
+      }
     }
   };
 
