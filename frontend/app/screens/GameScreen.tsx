@@ -372,6 +372,7 @@ export default function GameScreen() {
                   {selectedTransactionType === 'credit' && 'Player receives chips on credit (creates debt)'}
                   {selectedTransactionType === 'cashed_out' && 'Player cashes out winnings (enter amount won)'}
                   {selectedTransactionType === 'paid_with_chips' && 'Player pays debt or creates credit with chips'}
+                  {selectedTransactionType === 'pay_credit' && 'Player pays off existing debt with cash/transfer (not chips)'}
                 </Text>
               </View>
             )}
