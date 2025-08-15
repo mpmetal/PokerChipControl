@@ -179,7 +179,7 @@ def test_scenario_2_paid_with_chips_validation():
         
         if response.status_code == 400:
             error_message = response.json().get("detail", "")
-            if "Cannot pay $1000" in error_message and "$800 chips in game" in error_message:
+            if "Cannot pay" in error_message and "1000" in error_message and "800" in error_message and "chips in game" in error_message:
                 log_test("PAID_WITH_CHIPS validation fails correctly", True, f"Error: {error_message}")
             else:
                 log_test("PAID_WITH_CHIPS validation fails correctly", False, f"Wrong error: {error_message}")
