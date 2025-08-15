@@ -490,9 +490,9 @@ def test_club_earnings_after_pay_credit():
         return False
 
 def test_total_table_logic_verification():
-    """Verify Total Table = Cash + Bank Transfer + Credit - Cashed Out - Paid with Chips - Pay Credit"""
+    """Verify Total Table = Cash + Bank Transfer + Credit - Cashed Out - Paid with Chips (PAY_CREDIT does NOT affect)"""
     print("=" * 60)
-    print("9. TESTING TOTAL TABLE LOGIC VERIFICATION")
+    print("9. TESTING TOTAL TABLE LOGIC VERIFICATION (CORRECTED)")
     print("=" * 60)
     
     try:
@@ -523,13 +523,14 @@ def test_total_table_logic_verification():
                 if abs(total_table - club_earnings) < 0.01:
                     log_test("Total Table matches Club Earnings", True, f"Both show: ${total_table:.2f}")
                     
-                    # Verify the logic: Original adds (2550) - PAY_CREDIT subtractions (400)
-                    expected_total = 2550.0 - 400.0  # 2150.0
-                    if abs(total_table - expected_total) < 50.0:  # Allow some variance
-                        log_test("Total Table logic verification", True, f"Total Table correctly reflects all transactions")
+                    # CORRECTED LOGIC: PAY_CREDIT should NOT affect Total Table
+                    # Expected: Original adds (2550) - NO PAY_CREDIT subtractions
+                    expected_total = 2550.0  # Should remain unchanged by PAY_CREDIT
+                    if abs(total_table - expected_total) < 0.01:
+                        log_test("Total Table logic verification (CORRECTED)", True, f"Total Table correctly unaffected by PAY_CREDIT: ${total_table:.2f}")
                         return True
                     else:
-                        log_test("Total Table logic verification", False, f"Expected ~${expected_total:.2f}, got ${total_table:.2f}")
+                        log_test("Total Table logic verification (CORRECTED)", False, f"Expected: ${expected_total:.2f}, got ${total_table:.2f}")
                         return False
                 else:
                     log_test("Total Table matches Club Earnings", False, f"Table: ${total_table:.2f}, Earnings: ${club_earnings:.2f}")
