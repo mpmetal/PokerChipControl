@@ -151,9 +151,29 @@ export default function GameScreen() {
       return;
     }
 
+    // Check if all players have cashed out (balance should be 0 or negative for debt)
+    const playersWithBalance = currentGame.players.filter(gamePlayer => {
+      const player = players.find(p => p.id === gamePlayer.player_id);
+      return player && player.current_balance > 0; // Positive balance means they haven't cashed out
+    });
+
+    if (playersWithBalance.length > 0) {
+      const playerNames = playersWithBalance.map(gamePlayer => {
+        const player = players.find(p => p.id === gamePlayer.player_id);
+        return player?.name;
+      }).join(', ');
+      
+      Alert.alert(
+        'Cannot Close Game',
+        `The following players still have credits and must cash out first: ${playerNames}`,
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     Alert.alert(
       'Close Game',
-      'Are you sure you want to close this game? All balances will be finalized and carried over to future games.',
+      'All players have cashed out. Are you sure you want to close this game? All balances will be finalized.',
       [
         { text: 'Cancel', style: 'cancel' },
         { 
