@@ -111,6 +111,16 @@ export default function PlayersScreen() {
   };
 
   const handleDeletePlayer = (player: any) => {
+    // Debug log to check player data
+    console.log('Attempting to delete player:', player);
+    console.log('Player ID:', player.id);
+    
+    // Check if player.id exists
+    if (!player.id) {
+      Alert.alert('Error', 'Invalid player data. Cannot delete player.');
+      return;
+    }
+    
     Alert.alert(
       'Delete Player',
       `Are you sure you want to delete ${player.name}? This action cannot be undone.`,
@@ -121,8 +131,11 @@ export default function PlayersScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
+              console.log('Calling deletePlayer with ID:', player.id);
               await deletePlayer(player.id);
+              console.log('Player deleted successfully');
             } catch (error) {
+              console.error('Delete player error:', error);
               Alert.alert('Error', 'Failed to delete player. They may be in an active game.');
             }
           }
