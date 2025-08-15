@@ -19,7 +19,7 @@ import { useRouter } from 'expo-router';
 
 export default function PlayersScreen() {
   const router = useRouter();
-  const { players, createPlayer, updatePlayer, deletePlayer, createGame, isLoading } = useGame();
+  const { players, createPlayer, updatePlayer, deletePlayer, fetchPlayers, createGame, isLoading } = useGame();
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [showEditPlayer, setShowEditPlayer] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<any>(null);
