@@ -318,14 +318,30 @@ export default function GameScreen() {
                   </Text>
                 </View>
 
-                {/* Player Balance/Debt on the right */}
+                {/* Player Balance/Debt on the right - Only show negative balances (debt) during active games */}
                 <View style={styles.playerBalanceRight}>
-                  <Text style={[styles.currentBalance, { color: getBalanceColor(player.current_balance) }]}>
-                    {formatBalance(Math.abs(player.current_balance))}
-                  </Text>
-                  <Text style={styles.balanceLabel}>
-                    {player.current_balance > 0 ? 'Owed to Player' : player.current_balance < 0 ? 'Player Owes' : 'Even'}
-                  </Text>
+                  {player.current_balance < 0 ? (
+                    <>
+                      <Text style={[styles.currentBalance, { color: '#f44336' }]}>
+                        ${formatMoney(Math.abs(player.current_balance))}
+                      </Text>
+                      <Text style={styles.balanceLabel}>Player Owes</Text>
+                    </>
+                  ) : player.current_balance === 0 ? (
+                    <>
+                      <Text style={[styles.currentBalance, { color: '#666' }]}>
+                        $0
+                      </Text>
+                      <Text style={styles.balanceLabel}>Even</Text>
+                    </>
+                  ) : (
+                    <>
+                      <Text style={[styles.currentBalance, { color: '#666' }]}>
+                        ---
+                      </Text>
+                      <Text style={styles.balanceLabel}>Pending Result</Text>
+                    </>
+                  )}
                 </View>
               </View>
 
