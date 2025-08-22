@@ -569,15 +569,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Player Management API"
-    - "Game Management API"
-    - "Transaction Management API"
-    - "Game Closing API"
-    - "Dashboard API"
+    - "Force Close Game with Uncashed Players - COMPLETED"
   stuck_tasks: []
-  test_all: true
-  test_priority: "sequential"
+  test_all: false
+  test_priority: "high_first"
 
 agent_communication:
     - agent: "testing"
-      message: "Comprehensive backend API testing completed successfully. Fixed one minor type annotation issue in Game model. All poker chip management functionality is working correctly with proper balance calculations and transaction logic. Backend is ready for production use."
+      message: "✅ FORCE CLOSE GAME TEST COMPLETED SUCCESSFULLY: Comprehensive testing of game closure with players who haven't cashed out has been completed with 100% success rate (22/22 tests passed). The system correctly allows administrative force closing of games even when players haven't cashed out, which is the expected behavior for administrative purposes. All test scenarios from the review request were validated: 1) Created 3 test players (TestPlayer1, TestPlayer2, TestPlayer3), 2) Created game 'Test Force Close' with all players, 3) Added transactions WITHOUT cashing out (TestPlayer1: $1500 chips/-$500 balance, TestPlayer2: $800 chips/$0 balance, TestPlayer3: $1200 chips/-$1200 balance), 4) Verified game status was ACTIVE, 5) Successfully force closed game using POST /api/games/{game_id}/close, 6) Verified game status changed to CLOSED, 7) Verified final_balances were recorded correctly for all players. The backend API handles this scenario perfectly and is production-ready."
