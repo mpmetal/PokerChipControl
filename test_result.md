@@ -446,9 +446,21 @@ agent_communication:
     - agent: "testing"
       message: "✅ COMPREHENSIVE PLAYER DELETE API TESTING COMPLETED: Executed focused testing specifically for user issue 'No puedo borrar jugadores'. Results: ALL DELETE FUNCTIONALITY WORKING PERFECTLY. Tested complete user workflow (CREATE → VERIFY → DELETE → VERIFY REMOVAL), multiple consecutive deletions, and edge cases. Backend DELETE /api/players/{player_id} is 100% FUNCTIONAL. DEFINITIVE CONCLUSION: User issue is NOT a backend problem - it's a FRONTEND implementation issue. The backend correctly processes DELETE requests, removes players from database, and returns proper responses. Issue is in frontend: not sending DELETE requests correctly, not refreshing player list after deletion, or frontend-backend communication problems."
 
-user_problem_statement: "Test the poker chip management backend API with comprehensive testing of player management, game management, transaction management, game closing, and dashboard endpoints"
+user_problem_statement: "Create a test scenario to validate game closure with players who haven't cashed out: 1. Create 3 test players (TestPlayer1, TestPlayer2, TestPlayer3), 2. Create a new game 'Test Force Close' with these 3 players, 3. Add transactions for players WITHOUT cashing out: TestPlayer1: Cash $1000, Credit $500 (total chips in game: $1500, balance: -500), TestPlayer2: Bank Transfer $800 (total chips in game: $800, balance: 0), TestPlayer3: Credit $1200 (total chips in game: $1200, balance: -1200), 4. Verify game status is ACTIVE, 5. Force close the game using POST /api/games/{game_id}/close, 6. Verify game closes successfully despite players not having cashed out, 7. Verify final_balances are recorded correctly"
 
 backend:
+  - task: "Force Close Game with Uncashed Players"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ FORCE CLOSE GAME TEST PASSED COMPLETELY: Successfully validated game closure with players who haven't cashed out. All 22 test steps passed: 1) Created 3 test players (TestPlayer1, TestPlayer2, TestPlayer3), 2) Created game 'Test Force Close' with all 3 players, 3) Added transactions WITHOUT cashing out: TestPlayer1 (Cash $1000 + Credit $500 = $1500 chips, -$500 balance), TestPlayer2 (Bank Transfer $800 = $800 chips, $0 balance), TestPlayer3 (Credit $1200 = $1200 chips, -$1200 balance), 4) Verified game status was ACTIVE, 5) Successfully force closed game using POST /api/games/{game_id}/close despite players not having cashed out, 6) Verified game status changed to CLOSED, 7) Verified final_balances were recorded correctly for all players. System allows administrative force closing of games even when players haven't cashed out, which is correct for administrative purposes."
+
   - task: "Player Management API"
     implemented: true
     working: true
