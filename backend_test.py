@@ -629,6 +629,272 @@ def run_pay_credit_and_club_earnings_tests():
         print("⚠️  SOME TESTS FAILED! Check the details above.")
         return False
 
+def test_force_close_game_with_uncashed_players():
+    """Test scenario: Force close game with players who haven't cashed out"""
+    print("=" * 60)
+    print("TESTING FORCE CLOSE GAME WITH PLAYERS WHO HAVEN'T CASHED OUT")
+    print("=" * 60)
+    
+    # Step 1: Create 3 test players
+    test_players_force_close = []
+    players_to_create = [
+        {"name": "TestPlayer1"},
+        {"name": "TestPlayer2"}, 
+        {"name": "TestPlayer3"}
+    ]
+    
+    for player_info in players_to_create:
+        try:
+            payload = {"name": player_info["name"]}
+            response = requests.post(f"{BASE_URL}/players", json=payload, headers=HEADERS)
+            
+            if response.status_code == 200:
+                player_data = response.json()
+                test_players_force_close.append(player_data)
+                log_test(f"Create {player_info['name']}", True, f"Player ID: {player_data['id']}")
+            else:
+                log_test(f"Create {player_info['name']}", False, f"Status: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            log_test(f"Create {player_info['name']}", False, f"Exception: {str(e)}")
+            return False
+    
+    # Step 2: Create a new game "Test Force Close" with these 3 players
+    try:
+        player_ids = [p['id'] for p in test_players_force_close]
+        payload = {
+            "name": "Test Force Close",
+            "player_ids": player_ids
+        }
+        
+        response = requests.post(f"{BASE_URL}/games", json=payload, headers=HEADERS)
+        
+        if response.status_code == 200:
+            game_data = response.json()
+            test_game_force_close_id = game_data['id']
+            log_test("Create 'Test Force Close' game", True, f"Game ID: {test_game_force_close_id}")
+        else:
+            log_test("Create 'Test Force Close' game", False, f"Status: {response.status_code}")
+            return False
+            
+    except Exception as e:
+        log_test("Create 'Test Force Close' game", False, f"Exception: {str(e)}")
+        return False
+    
+    # Step 3: Add transactions for players WITHOUT cashing out
+    transactions_to_create = [
+        # TestPlayer1: Cash $1000, Credit $500 (total chips in game: $1500, balance: -500)
+        {"player_id": test_players_force_close[0]['id'], "type": "cash", "amount": 1000.0, "desc": "TestPlayer1 cash $1000"},
+        {"player_id": test_players_force_close[0]['id'], "type": "credit", "amount": 500.0, "desc": "TestPlayer1 credit $500"},
+        
+        # TestPlayer2: Bank Transfer $800 (total chips in game: $800, balance: 0)
+        {"player_id": test_players_force_close[1]['id'], "type": "bank_transfer", "amount": 800.0, "desc": "TestPlayer2 bank transfer $800"},
+        
+        # TestPlayer3: Credit $1200 (total chips in game: $1200, balance: -1200)
+        {"player_id": test_players_force_close[2]['id'], "type": "credit", "amount": 1200.0, "desc": "TestPlayer3 credit $1200"}
+    ]
+    
+    for transaction in transactions_to_create:
+        try:
+            payload = {
+                "player_id": transaction["player_id"],
+                "transaction_type": transaction["type"],
+                "amount": transaction["amount"],
+                "description": transaction["desc"]
+            }
+            
+            response = requests.post(f"{BASE_URL}/games/{test_game_force_close_id}/transactions", json=payload, headers=HEADERS)
+            
+            if response.status_code == 200:
+                log_test(f"Create transaction: {transaction['desc']}", True, f"Amount: ${transaction['amount']:.2f}")
+            else:
+                log_test(f"Create transaction: {transaction['desc']}", False, f"Status: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            log_test(f"Create transaction: {transaction['desc']}", False, f"Exception: {str(e)}")
+            return False
+    
+    # Step 4: Verify game status is ACTIVE and check player states
+    try:
+        response = requests.get(f"{BASE_URL}/games/{test_game_force_close_id}", headers=HEADERS)
+        
+        if response.status_code == 200:
+            game_data = response.json()
+            
+            # Verify game status is ACTIVE
+            if game_data['status'] == 'active':
+                log_test("Verify game status is ACTIVE", True, f"Status: {game_data['status']}")
+            else:
+                log_test("Verify game status is ACTIVE", False, f"Expected 'active', got '{game_data['status']}'")
+                return False
+            
+            # Verify player states
+            expected_chips_in_game = {
+                test_players_force_close[0]['id']: 1500.0,  # TestPlayer1: $1000 cash + $500 credit
+                test_players_force_close[1]['id']: 800.0,   # TestPlayer2: $800 bank transfer
+                test_players_force_close[2]['id']: 1200.0   # TestPlayer3: $1200 credit
+            }
+            
+            for player_info in game_data['players']:
+                player_id = player_info['player_id']
+                actual_chips = player_info.get('chips_in_game', 0.0)
+                expected_chips = expected_chips_in_game.get(player_id, 0.0)
+                
+                if abs(actual_chips - expected_chips) < 0.01:
+                    log_test(f"Verify {player_info['player_name']} chips in game", True, f"Expected: ${expected_chips:.2f}, Actual: ${actual_chips:.2f}")
+                else:
+                    log_test(f"Verify {player_info['player_name']} chips in game", False, f"Expected: ${expected_chips:.2f}, Actual: ${actual_chips:.2f}")
+                    return False
+            
+            # Verify player balances
+            expected_balances = {
+                test_players_force_close[0]['id']: -500.0,   # TestPlayer1: 0 - 500 (credit) = -500
+                test_players_force_close[1]['id']: 0.0,      # TestPlayer2: 0 (bank transfer doesn't affect balance)
+                test_players_force_close[2]['id']: -1200.0   # TestPlayer3: 0 - 1200 (credit) = -1200
+            }
+            
+            for i, player in enumerate(test_players_force_close):
+                response = requests.get(f"{BASE_URL}/players/{player['id']}", headers=HEADERS)
+                if response.status_code == 200:
+                    player_data = response.json()
+                    actual_balance = player_data['current_balance']
+                    expected_balance = expected_balances[player['id']]
+                    
+                    if abs(actual_balance - expected_balance) < 0.01:
+                        log_test(f"Verify {player['name']} balance", True, f"Expected: ${expected_balance:.2f}, Actual: ${actual_balance:.2f}")
+                    else:
+                        log_test(f"Verify {player['name']} balance", False, f"Expected: ${expected_balance:.2f}, Actual: ${actual_balance:.2f}")
+                        return False
+                else:
+                    log_test(f"Get {player['name']} balance", False, f"Status: {response.status_code}")
+                    return False
+            
+        else:
+            log_test("Get game data for verification", False, f"Status: {response.status_code}")
+            return False
+            
+    except Exception as e:
+        log_test("Verify game status and player states", False, f"Exception: {str(e)}")
+        return False
+    
+    # Step 5: Force close the game using POST /api/games/{game_id}/close
+    try:
+        response = requests.post(f"{BASE_URL}/games/{test_game_force_close_id}/close", headers=HEADERS)
+        
+        if response.status_code == 200:
+            close_response = response.json()
+            log_test("Force close game with uncashed players", True, "Game closed successfully despite players not having cashed out")
+            
+            # Step 6: Verify game closes successfully
+            response = requests.get(f"{BASE_URL}/games/{test_game_force_close_id}", headers=HEADERS)
+            
+            if response.status_code == 200:
+                closed_game_data = response.json()
+                
+                if closed_game_data['status'] == 'closed':
+                    log_test("Verify game status changed to CLOSED", True, f"Status: {closed_game_data['status']}")
+                else:
+                    log_test("Verify game status changed to CLOSED", False, f"Expected 'closed', got '{closed_game_data['status']}'")
+                    return False
+                
+                # Step 7: Verify final_balances are recorded correctly
+                final_balances = closed_game_data.get('final_balances', {})
+                
+                if final_balances:
+                    log_test("Verify final_balances exist", True, f"Found final_balances for {len(final_balances)} players")
+                    
+                    # Check each player's final balance matches their current balance
+                    for player in test_players_force_close:
+                        player_id = player['id']
+                        
+                        if player_id in final_balances:
+                            recorded_balance = final_balances[player_id]
+                            expected_balance = expected_balances[player_id]
+                            
+                            if abs(recorded_balance - expected_balance) < 0.01:
+                                log_test(f"Verify {player['name']} final balance", True, f"Expected: ${expected_balance:.2f}, Recorded: ${recorded_balance:.2f}")
+                            else:
+                                log_test(f"Verify {player['name']} final balance", False, f"Expected: ${expected_balance:.2f}, Recorded: ${recorded_balance:.2f}")
+                                return False
+                        else:
+                            log_test(f"Verify {player['name']} final balance exists", False, f"Player {player_id} not found in final_balances")
+                            return False
+                else:
+                    log_test("Verify final_balances exist", False, "final_balances field is empty or missing")
+                    return False
+                    
+            else:
+                log_test("Get closed game data", False, f"Status: {response.status_code}")
+                return False
+                
+        else:
+            log_test("Force close game with uncashed players", False, f"Status: {response.status_code}, Response: {response.text}")
+            return False
+            
+    except Exception as e:
+        log_test("Force close game test", False, f"Exception: {str(e)}")
+        return False
+    
+    # Cleanup: Delete test players (game is already closed)
+    for player in test_players_force_close:
+        try:
+            response = requests.delete(f"{BASE_URL}/players/{player['id']}", headers=HEADERS)
+            if response.status_code == 200:
+                log_test(f"Cleanup: Delete {player['name']}", True, "Player deleted")
+            else:
+                log_test(f"Cleanup: Delete {player['name']}", False, f"Status: {response.status_code}")
+        except Exception as e:
+            log_test(f"Cleanup: Delete {player['name']}", False, f"Exception: {str(e)}")
+    
+    return True
+
+def run_force_close_game_test():
+    """Run the force close game test scenario"""
+    print("🎯 POKER CHIP MANAGEMENT BACKEND - FORCE CLOSE GAME TEST")
+    print("Focus: Testing game closure with players who haven't cashed out")
+    print("=" * 80)
+    print(f"Testing against: {BASE_URL}")
+    print(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print()
+    
+    # Run the test
+    success = test_force_close_game_with_uncashed_players()
+    
+    # Summary
+    print("=" * 80)
+    print("📊 FORCE CLOSE GAME TEST SUMMARY")
+    print("=" * 80)
+    
+    if success:
+        print("✅ FORCE CLOSE GAME TEST PASSED!")
+        print("\n✅ Key Features Verified:")
+        print("   • Created 3 test players successfully")
+        print("   • Created game 'Test Force Close' with all 3 players")
+        print("   • Added transactions without cashing out:")
+        print("     - TestPlayer1: Cash $1000 + Credit $500 (chips: $1500, balance: -$500)")
+        print("     - TestPlayer2: Bank Transfer $800 (chips: $800, balance: $0)")
+        print("     - TestPlayer3: Credit $1200 (chips: $1200, balance: -$1200)")
+        print("   • Verified game status was ACTIVE before closing")
+        print("   • Successfully force closed game despite players not having cashed out")
+        print("   • Verified game status changed to CLOSED")
+        print("   • Verified final_balances were recorded correctly for all players")
+        print("   • System allows administrative force closing of games")
+        return True
+    else:
+        print("❌ FORCE CLOSE GAME TEST FAILED!")
+        print("⚠️  Check the details above for specific failure points.")
+        return False
+
 if __name__ == "__main__":
-    success = run_pay_credit_and_club_earnings_tests()
-    exit(0 if success else 1)
+    # Run the original tests
+    success1 = run_pay_credit_and_club_earnings_tests()
+    
+    print("\n" + "="*80 + "\n")
+    
+    # Run the new force close game test
+    success2 = run_force_close_game_test()
+    
+    # Exit with success only if both test suites pass
+    exit(0 if (success1 and success2) else 1)
