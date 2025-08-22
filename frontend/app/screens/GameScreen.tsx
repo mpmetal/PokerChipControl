@@ -145,7 +145,7 @@ export default function GameScreen() {
     }
   };
 
-  const handleCloseGame = () => {
+  const handleCloseGame = async () => {
     if (!currentGame) {
       Alert.alert('Error', 'No active game to close.');
       return;
@@ -163,14 +163,33 @@ export default function GameScreen() {
         return player?.name;
       }).join(', ');
       
+      // ALLOW FORCE CLOSE: Show warning but allow user to proceed
       Alert.alert(
-        'Cannot Close Game',
-        `The following players still have credits and must cash out first: ${playerNames}`,
-        [{ text: 'OK' }]
+        'Force Close Game?',
+        `WARNING: The following players still have credits and haven't cashed out: ${playerNames}\n\nDo you want to force close the game anyway? This will finalize all current balances.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Force Close', 
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                console.log('Force closing game from UI:', currentGame.id);
+                await closeCurrentGame();
+                Alert.alert('Success', 'Game has been force closed with current balances finalized.');
+                router.push('/');
+              } catch (error: any) {
+                console.error('Force close game error:', error);
+                Alert.alert('Error', error.message || 'Failed to force close game.');
+              }
+            }
+          }
+        ]
       );
       return;
     }
 
+    // All players have cashed out - normal close
     Alert.alert(
       'Close Game',
       'All players have cashed out. Are you sure you want to close this game? All balances will be finalized.',
@@ -183,15 +202,11 @@ export default function GameScreen() {
             try {
               console.log('Closing game from UI:', currentGame.id);
               await closeCurrentGame();
-              console.log('Game closed successfully, navigating home');
+              Alert.alert('Success', 'Game closed successfully.');
               router.push('/');
-            } catch (error) {
-              console.error('Error in handleCloseGame:', error);
-              Alert.alert(
-                'Error Closing Game', 
-                error.message || 'Failed to close the game. Please try again.',
-                [{ text: 'OK' }]
-              );
+            } catch (error: any) {
+              console.error('Close game error:', error);
+              Alert.alert('Error', error.message || 'Failed to close game.');
             }
           }
         }
