@@ -271,7 +271,7 @@ async def create_game(game_data: GameCreate):
         players_with_balances.append({
             "player_id": player_id,
             "player_name": player["name"],
-            "starting_balance": player["current_balance"],
+            "starting_balance": 0.0,  # All players start fresh with 0 balance in new games
             "chips_in_game": 0.0  # Start fresh - no chips carried over from previous games
         })
     
