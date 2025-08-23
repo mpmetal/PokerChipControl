@@ -346,8 +346,9 @@ async def create_transaction(game_id: str, transaction_data: TransactionCreate):
         total_played_change = transaction_data.amount
     elif transaction_data.transaction_type == TransactionType.CASHED_OUT:
         # Cashed out - player cashes out chips they won (POSITIVE for player)
-        if transaction_data.amount <= 0:
-            raise HTTPException(status_code=400, detail="Cash out amount must be greater than 0")
+        # Allow cash out of $0 (player didn't win anything but wants to finalize position)
+        if transaction_data.amount < 0:
+            raise HTTPException(status_code=400, detail="Cash out amount cannot be negative")
         balance_change = transaction_data.amount  # POSITIVE - increases player's credit balance
         total_played_change = 0.0
     elif transaction_data.transaction_type == TransactionType.PAID_WITH_CHIPS:
